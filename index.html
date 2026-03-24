@@ -1,0 +1,2194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雅思听阅成长记录</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" onload="lucide.createIcons()"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* 定制全局丝滑滚动条 (莫兰迪绿) */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(143, 188, 143, 0.6);
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(107, 142, 35, 0.8);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+    /* 隐藏未激活的标签页 */
+    .hidden-tab {
+      display: none !important;
+    }
+    /* 记录列表进入动画 */
+    .record-item {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    /* 输入框错误抖动动画 */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .input-error {
+      border-color: #ef4444 !important;
+      animation: shake 0.3s ease-in-out;
+    }
+
+    /* --- 1. 放大日期输入框的日历图标 --- */
+    input.date-input::-webkit-calendar-picker-indicator {
+      /* 放大图标 */
+      transform: scale(1.3);
+      /* 调整图标间距，不让它挤 */
+      margin-left: 4px;
+      /* 鼠标放上去变手型 */
+      cursor: pointer;
+      /* 图标颜色改成和主题一致的绿色 */
+      filter: invert(42%) sepia(93%) saturate(381%) hue-rotate(44deg) brightness(94%) contrast(86%);
+    }
+
+    /* --- 2. 彻底解决布局跳动的兜底样式 --- */
+    /* 锁死lucide图标的宽高，不会加载时撑开 */
+    i[data-lucide] {
+      display: inline-block !important;
+      flex-shrink: 0 !important;
+    }
+    /* 锁死日期输入框的固定高度，不会变 */
+    input.date-input {
+      height: 22px !important;
+      line-height: 22px !important;
+      box-sizing: border-box !important;
+    }
+    /* 锁死倒计时数字的行高，不会上下跳 */
+    #countdown-days {
+      line-height: 1 !important;
+    }
+    /* --- 手机端自动隐藏日期选择，只留倒计时和进度条 --- */
+        /* --- 手机端默认隐藏日期，但留了开关 --- */
+    @media (max-width: 640px) {
+      /* 手机端默认不显示日期 */
+      #date-settings-container {
+        display: none !important;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      /* 当加上 mobile-show 类时，显示日期 */
+      #date-settings-container.mobile-show {
+        display: flex !important;
+        opacity: 1;
+      }
+      /* 手机端把齿轮颜色调明显一点，方便找到 */
+      #toggle-date-btn {
+        color: #6B8E23;
+        background-color: rgba(143, 188, 143, 0.2);
+      }
+    }
+
+    /* --- 电脑端：始终显示日期，齿轮可以隐藏或者留着 --- */
+    @media (min-width: 641px) {
+      #toggle-date-btn {
+        display: none; /* 电脑端屏幕大，不需要齿轮，直接隐藏 */
+      }
+      #date-settings-container {
+        display: flex !important; /* 电脑端强制显示日期 */
+      }
+    }
+
+   /* --- 智能波动预警滚动轨道动画 --- */
+    .warning-track {
+       display: flex;
+       flex-direction: column;
+       gap: 12px;
+       padding: 4px 8px 4px 4px;; /* 给卡片留点呼吸空间 */
+     }
+
+     /* --- 预警小窗专属：丝滑莫兰迪绿滚动条 --- */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px; /* 细一点更精致 */
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(143, 188, 143, 0.05); /* 极浅的底色 */
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(143, 188, 143, 0.4); /* 莫兰迪绿半透明 */
+      border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(107, 142, 35, 0.6); /* 鼠标悬停深一点 */
+    }
+
+  </style>
+</head>
+<body class="min-h-screen bg-[#8FBC8F]/30 font-sans text-slate-800 pb-20 selection:bg-[#9ACD32]/40">
+
+  <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-10 border-b border-[#8FBC8F]/50">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2 text-[#808000]">
+        <i data-lucide="book-open" class="w-6 h-6"></i>
+        <h1 class="text-xl font-bold tracking-wide">雅思听阅成长记录 <span class="text-xs text-blue-600 font-normal ml-2 bg-blue-100 px-2 py-0.5 rounded-full" id="sync-status">💾 已开启本地存储</span></h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        <input type="file" id="import-file" accept=".json" class="hidden" onchange="window.importData(event)" />
+        
+        <button onclick="document.getElementById('import-file').click()" class="flex items-center space-x-1 text-sm text-slate-500 hover:text-[#6B8E23] transition font-medium" title="导入 JSON 备份">
+          <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+          <span>导入备份</span>
+        </button>
+        
+        <button onclick="window.exportBackup()" class="flex items-center space-x-1 text-sm text-slate-500 hover:text-[#6B8E23] transition font-medium" title="导出全站 JSON 备份">
+          <i data-lucide="download-cloud" class="w-4 h-4"></i>
+          <span>导出备份</span>
+        </button>
+
+        <span class="text-slate-200">|</span> <button onclick="window.exportData()" class="flex items-center space-x-1 text-sm text-slate-400 hover:text-slate-600 transition" title="导出可以在 Excel 查看的 CSV">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">导出 CSV</span>
+        </button>
+      </div>
+    </div>
+    <!-- 👇 直接整段替换 👇 -->
+<div class="max-w-5xl mx-auto px-4 flex items-center justify-between border-t border-slate-100 h-10">
+  <!-- 左侧：标签按钮 -->
+  <div class="flex space-x-4 h-full items-center">
+    <button id="tab-input" onclick="window.switchTab('input')" class="flex items-center space-x-1 h-full px-2 border-b-2 transition-colors border-[#6B8E23] text-[#6B8E23] font-bold text-base">
+      <i data-lucide="plus-circle" class="w-4 h-4 flex-shrink-0"></i>
+      <span>记录数据</span>
+    </button>
+    <button id="tab-dashboard" onclick="window.switchTab('dashboard')" class="flex items-center space-x-1 h-full px-2 border-b-2 transition-colors border-transparent text-slate-500 hover:text-[#6B8E23] text-base">
+      <i data-lucide="layout-dashboard" class="w-4 h-4 flex-shrink-0"></i>
+      <span>成长看板</span>
+    </button>
+  </div>
+
+  <!-- 右侧：屠鸭进度条 -->
+    <!-- 1. 倒计时 -->
+    <div class="flex items-center justify-end gap-6 h-full w-full max-w-xl">
+    <div class="flex items-baseline space-x-1 flex-shrink-0">
+      <span class="text-xs text-slate-500">距考</span>
+      <span id="countdown-days" class="text-2xl font-bold text-slate-900 tracking-tight min-w-[40px] text-center">-</span>
+      <span class="text-xs text-slate-500">天</span>
+    </div>
+
+    <!-- 2. 进度条 -->
+    <div class="flex-1 min-w-[120px] max-w-[320px]">
+      <div class="w-full bg-[#8FBC8F]/20 rounded-full h-2.5 overflow-hidden shadow-inner relative">
+        <div id="countdown-bar" class="bg-gradient-to-r from-[#9ACD32] to-[#6B8E23] h-full rounded-full transition-all duration-1000 ease-out w-0 relative">
+          <div class="absolute right-0 top-0 bottom-0 w-3 bg-white/30 animate-pulse rounded-full"></div>
+        </div>
+      </div>
+      <div class="flex justify-between items-center mt-0.5">
+        <span id="countdown-percent" class="text-[10px] text-[#6B8E23] font-bold min-w-[30px]">0%</span>
+        <span id="countdown-msg" class="text-[10px] text-slate-400 text-right whitespace-nowrap pl-2"></span>
+      </div>
+    </div>
+
+    <!-- 3. 【新增】齿轮设置按钮（点击显示/隐藏日期） -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button id="toggle-date-btn" onclick="window.toggleDateSettings()" class="p-1 rounded-full hover:bg-[#8FBC8F]/20 text-slate-400 hover:text-[#6B8E23] transition-colors" title="修改考试日期">
+        <i data-lucide="settings" class="w-4 h-4"></i>
+      </button>
+      <div id="date-settings-container" class="flex items-center space-x-2 text-xs text-slate-500">
+        <div class="flex items-center space-x-1">
+          <input type="date" id="start-date" onchange="window.saveDates()" class="date-input p-0.5 w-[85px] text-[10px] border border-[#8FBC8F]/50 rounded-md bg-slate-50 outline-none focus:ring-1 focus:ring-[#8FBC8F]/50 cursor-pointer hover:border-[#6B8E23]" />
+        </div>
+        <span class="text-[10px] text-slate-400">→</span>
+        <div class="flex items-center space-x-1">
+          <input type="date" id="exam-date" onchange="window.saveDates()" class="date-input p-0.5 w-[85px] text-[10px] border border-[#8FBC8F]/50 rounded-md bg-slate-50 outline-none focus:ring-1 focus:ring-[#8FBC8F]/50 cursor-pointer hover:border-[#6B8E23]" />
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- 👆 替换结束 👆 -->
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-8 relative">
+    
+    <div id="view-input" class="space-y-6">
+      <div class="flex p-1 bg-white/60 backdrop-blur-sm rounded-xl w-fit mx-auto mb-8 shadow-sm border border-[#8FBC8F]/50">
+        <button id="btn-mode-practice" onclick="window.switchInputMode('practice')" class="px-6 py-2 rounded-lg text-sm font-medium transition bg-[#6B8E23] text-white shadow-md">🌿 刷题模式</button>
+        <button id="btn-mode-full" onclick="window.switchInputMode('full')" class="px-6 py-2 rounded-lg text-sm font-medium transition text-indigo-800 hover:bg-indigo-100">🎓 套题模式</button>
+      </div>
+
+      <div id="form-practice" class="bg-white p-6 rounded-2xl shadow-sm border border-[#8FBC8F]/60 max-w-2xl mx-auto animate-fade-in">
+        <h2 class="text-lg font-semibold mb-6 flex items-center text-[#808000]">
+          <i data-lucide="trending-up" class="w-5 h-5 mr-2 text-[#9ACD32]"></i> 碎片化练习记录
+        </h2>
+        
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">做题日期</label>
+            <input type="date" id="p-date" onkeydown="if(event.key === 'Enter') { event.preventDefault(); if(window.currentSubject === 'reading') document.getElementById('p-time').focus(); else document.getElementById('p-correct').focus(); }" class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg focus:ring-2 focus:ring-[#8FBC8F]/50 outline-none bg-slate-50/50 text-slate-900 cursor-pointer hover:border-[#6B8E23] transition-colors" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">科目</label>
+            <div class="flex bg-[#8FBC8F]/10 rounded-lg p-1 border border-[#8FBC8F]/30">
+              <button id="p-btn-reading" onclick="window.setPSubject('reading')" class="flex-1 py-1 rounded-md text-sm font-medium transition bg-white shadow-sm text-[#6B8E23]">阅读</button>
+              <button id="p-btn-listening" onclick="window.setPSubject('listening')" class="flex-1 py-1 rounded-md text-sm font-medium transition text-slate-500 hover:text-[#808000]">听力</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">题目来源</label>
+            <select id="p-source" onchange="window.handleSourceChange()" class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg outline-none bg-slate-50 focus:ring-2 focus:ring-[#8FBC8F]/50 text-slate-900 cursor-pointer hover:border-[#6B8E23] transition-colors shadow-sm">
+              </select>
+          </div>
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">具体出处</label>
+            
+            <div id="p-source-cambridge" class="flex space-x-1">
+              <select id="p-cam-book" class="w-1/3 p-2 border border-[#8FBC8F]/50 rounded-lg text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-[#8FBC8F]/50 text-slate-900 cursor-pointer hover:border-[#6B8E23] transition-colors shadow-sm">
+                <option value="C8">C8</option><option value="C9">C9</option><option value="C10">C10</option>
+                <option value="C11">C11</option><option value="C12">C12</option><option value="C13" selected>C13</option>
+              </select>
+              <select id="p-cam-test" class="w-1/3 p-2 border border-[#8FBC8F]/50 rounded-lg text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-[#8FBC8F]/50 text-slate-900 cursor-pointer hover:border-[#6B8E23] transition-colors shadow-sm">
+                <option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option><option value="T4">T4</option>
+              </select>
+              <select id="p-cam-section" onchange="window.updateMaxScore()" class="w-1/3 p-2 border border-[#8FBC8F]/50 rounded-lg text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-[#8FBC8F]/50 text-slate-900 cursor-pointer hover:border-[#6B8E23] transition-colors shadow-sm">
+                <option value="P1">P1</option><option value="P2">P2</option><option value="P3">P3</option>
+              </select>
+            </div>
+            
+            <div id="p-source-jijing" class="flex space-x-1 hidden">
+              <select id="p-jj-part" onchange="window.updateMaxScore()" class="w-1/3 p-2 border border-[#8FBC8F]/50 rounded-lg text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-[#8FBC8F]/50 text-slate-900 cursor-pointer hover:border-[#6B8E23] transition-colors shadow-sm">
+                <option value="1">Part 1</option><option value="2">Part 2</option><option value="3">Part 3</option>
+              </select>
+              <select id="p-jj-topic" onchange="window.handleTopicChange()" class="w-2/3 p-2 border border-[#8FBC8F]/50 rounded-lg outline-none bg-slate-50 focus:ring-2 focus:ring-[#8FBC8F]/50 text-slate-900 cursor-pointer hover:border-[#6B8E23] transition-colors shadow-sm">
+                </select>
+            </div>
+
+            <div id="p-source-custom" class="flex space-x-1 hidden">
+              <input type="text" id="p-custom-detail" placeholder="例如：Test 1 / 第25页..." class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg text-sm bg-slate-50 outline-none focus:ring-2 focus:ring-[#8FBC8F]/50 text-slate-900 shadow-sm transition-colors hover:border-[#6B8E23]" />
+            </div>
+
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div id="p-time-container">
+            <label class="block text-sm text-slate-500 mb-1">单篇用时 (分钟)</label>
+            <input type="number" id="p-time" min="1" placeholder="例如：15" class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg focus:ring-2 focus:ring-[#8FBC8F]/50 outline-none bg-slate-50/50 text-slate-900 nav-input" data-next="p-correct" />
+          </div>
+          <div id="p-correct-container">
+            <label id="p-correct-label" class="block text-sm text-slate-500 mb-1">正确题数 (满分 13题)</label>
+            <input type="number" id="p-correct" placeholder="输入正确数..." class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg focus:ring-2 focus:ring-[#8FBC8F]/50 outline-none text-slate-900 bg-slate-50/50 nav-input" />
+          </div>
+        </div>
+
+        <button onclick="window.handlePracticeSubmit()" class="w-full bg-[#6B8E23] text-white font-medium py-3 rounded-xl hover:bg-[#808000] transition active:scale-[0.98] shadow-sm tracking-wide">
+          录入成绩
+        </button>
+
+        <div id="p-history-container" class="mt-6 hidden">
+          <h3 class="text-sm font-medium text-slate-500 mb-3 flex items-center">
+            <i data-lucide="history" class="w-4 h-4 mr-1"></i> 最近录入记录
+          </h3>
+          <div id="p-history-list" class="space-y-2 max-h-40 overflow-y-auto pr-2">
+            </div>
+        </div>
+      </div>
+
+      <div id="form-full" class="bg-indigo-50 p-6 rounded-2xl shadow-sm border border-indigo-100 max-w-2xl mx-auto animate-fade-in hidden">
+        <h2 class="text-lg font-semibold mb-6 flex items-center text-indigo-900">
+          <i data-lucide="award" class="w-5 h-5 mr-2 text-indigo-500"></i> 全真套题模考记录
+        </h2>
+        
+        <div class="grid grid-cols-3 gap-4 mb-2">
+          <div>
+            <label class="block text-sm text-indigo-700/70 mb-1">做题日期</label>
+            <input type="date" id="f-date" onkeydown="if(event.key === 'Enter') { event.preventDefault(); document.getElementById('f-r1').focus(); }" class="w-full p-2 border border-indigo-200 rounded-lg outline-none bg-white focus:ring-2 focus:ring-indigo-300 text-slate-900 cursor-pointer hover:border-indigo-400 transition-colors" />
+          </div>
+          <div>
+            <label class="block text-sm text-indigo-700/70 mb-1">试卷版本</label>
+            <div class="flex space-x-1">
+              <select id="f-book" onchange="window.handleBookChange()" class="w-1/2 p-2 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer hover:border-indigo-400 transition-colors shadow-sm">
+                </select>
+              <select id="f-test" class="w-1/2 p-2 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer hover:border-indigo-400 transition-colors shadow-sm">
+                <option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option>
+              </select>
+            </div>
+          </div>
+          <div>
+              <label class="block text-sm text-indigo-700/70 mb-1">做题时间段</label>
+              <select id="f-status" onchange="window.updateTimeEncouragement()" class="w-full p-2 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer hover:border-indigo-400 transition-colors shadow-sm text-sm">
+                <option value="09:00-12:00">09:00-12:00🌞黄金同频 </option>
+                <option value="13:00-15:00">13:00-15:00☕午后抗困 </option>
+                <option value="15:00-17:00">15:00-17:00🎯聚精会神 </option>
+                <option value="19:00-22:00">19:00-22:00🌙晚间冲刺 </option>
+              </select>
+          </div>
+        </div>
+
+        <div id="time-msg" class="text-[11px] text-indigo-400 mb-4 min-h-[16px] font-medium animate-fade-in tracking-wide text-right">和考场同一时间！克服犯困，提前把大脑生物钟调到最佳状态！</div>
+
+        <div class="bg-white/60 p-4 rounded-xl mb-4 border border-indigo-100">
+          <h3 class="text-sm font-medium text-indigo-900 mb-3 flex items-center"><i data-lucide="book-open" class="w-4 h-4 mr-1 text-indigo-400"></i> 阅读部分 (共40题)</h3>
+          <div class="grid grid-cols-3 gap-4">
+            <div><label class="text-xs text-indigo-500 block mb-1">Part1 (13题)</label><input type="number" id="f-r1" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r2" /></div>
+            <div><label class="text-xs text-indigo-500 block mb-1">Part2 (13题)</label><input type="number" id="f-r2" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r3" /></div>
+            <div><label class="text-xs text-indigo-500 block mb-1">Part3 (14题)</label><input type="number" id="f-r3" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l1" /></div>
+          </div>
+        </div>
+
+        <div class="bg-white/60 p-4 rounded-xl mb-6 border border-indigo-100">
+          <h3 class="text-sm font-medium text-indigo-900 mb-3 flex items-center"><i data-lucide="headphones" class="w-4 h-4 mr-1 text-indigo-400"></i> 听力部分 (共40题)</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div><label class="text-xs text-indigo-500 block mb-1">Part1 (10题)</label><input type="number" id="f-l1" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l2" /></div>
+            <div><label class="text-xs text-indigo-500 block mb-1">Part2 (10题)</label><input type="number" id="f-l2" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l3" /></div>
+            <div><label class="text-xs text-indigo-500 block mb-1">Part3 (10题)</label><input type="number" id="f-l3" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l4" /></div>
+            <div><label class="text-xs text-indigo-500 block mb-1">Part4 (10题)</label><input type="number" id="f-l4" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" /></div>
+          </div>
+        </div>
+        
+        <button onclick="window.handleFullSubmit()" class="w-full bg-indigo-500 text-white font-medium py-3 rounded-xl hover:bg-indigo-600 transition active:scale-[0.98] shadow-sm tracking-wide">
+          录入套题成绩
+        </button>
+
+        <div id="f-history-container" class="mt-6 hidden">
+          <h3 class="text-sm font-medium text-indigo-400 mb-3 flex items-center">
+            <i data-lucide="history" class="w-4 h-4 mr-1"></i> 最近模考记录
+          </h3>
+          <div id="f-history-list" class="space-y-2 max-h-40 overflow-y-auto pr-2">
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-dashboard" class="space-y-6 animate-fade-in hidden-tab">
+      
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#8FBC8F]/50">
+        <h2 class="text-lg font-semibold mb-6 flex items-center text-[#808000]"><i data-lucide="leaf" class="w-5 h-5 mr-2 text-[#9ACD32]"></i> 学习热力追踪</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="bg-[#8FBC8F]/10 p-6 rounded-xl border border-[#8FBC8F]/30 flex flex-col items-center justify-center relative">
+            <span class="text-[#6B8E23] text-sm font-medium mb-2 flex items-center"><i data-lucide="target" class="w-4 h-4 mr-1"></i>今日完成总数 (篇)</span>
+            <span id="stat-today" class="text-5xl font-bold text-slate-900 mb-2">0</span>
+            <div class="flex space-x-3 text-xs font-medium">
+              <span class="bg-white/60 text-green-600 px-2 py-1.5 rounded-md border border-green-100/50 shadow-sm flex items-center"><i data-lucide="book-open" class="w-3 h-3 mr-1"></i>阅: <span id="stat-today-r" class="ml-1 text-sm">0</span></span>
+              <span class="bg-white/60 text-blue-500 px-2 py-1.5 rounded-md border border-blue-100/50 shadow-sm flex items-center"><i data-lucide="headphones" class="w-3 h-3 mr-1"></i>听: <span id="stat-today-l" class="ml-1 text-sm">0</span></span>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-3">注：套题按 阅3/听4 计入</span>
+          </div>
+          <div class="bg-[#8FBC8F]/10 p-6 rounded-xl border border-[#8FBC8F]/30 flex flex-col md:col-span-2 relative overflow-hidden">
+            <div class="flex justify-between items-start w-full z-10 mb-2">
+              <div>
+                <span class="text-[#6B8E23] text-sm font-medium mb-1 block">累计完成总数 (篇)</span>
+                <div class="flex items-center space-x-3">
+                  <span id="stat-total" class="text-4xl font-bold text-slate-900">0</span>
+                  <div class="flex flex-col space-y-1 font-semibold tracking-wide">
+                    <span class="text-green-600 bg-green-100/60 px-1.5 py-0.5 rounded text-[11px] flex items-center"><i data-lucide="book-open" class="w-3 h-3 mr-1"></i> <span id="stat-total-r" class="ml-1">0</span></span>
+                    <span class="text-blue-500 bg-blue-100/60 px-1.5 py-0.5 rounded text-[11px] flex items-center"><i data-lucide="headphones" class="w-3 h-3 mr-1"></i> <span id="stat-total-l" class="ml-1">0</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="chart-activity-container" class="h-24 w-full relative z-0 mt-0 -mb-4">
+              <canvas id="chart-activity"></canvas>
+            </div>
+            <div id="chart-activity-empty" class="text-center text-slate-400 py-6 text-sm w-full">开始录入数据后，这里会画出你的努力曲线哦~</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="analysis-section" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 animate-fade-in hidden-tab">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#8FBC8F]/50 flex flex-col h-full">
+          <h2 class="text-[17px] font-semibold mb-4 flex items-center text-[#808000]">
+            <i data-lucide="zap" class="w-4 h-4 mr-1.5 text-[#9ACD32]"></i> 近期状态巡航 
+            <span class="text-[10px] text-slate-400 font-normal ml-auto mt-0.5">（刷题近5次 | 套题近2次）</span>
+          </h2>
+          <div class="grid grid-cols-2 gap-3 flex-1">
+            <div class="bg-[#f0fff0]/80 p-3 rounded-xl border border-[#bbf7d0]/60 flex flex-col items-center justify-center">
+              <span class="text-[#166534]/70 text-[11px] font-bold mb-1 tracking-wide">刷题 · 阅读</span>
+              <div class="flex items-end justify-center h-8 mt-1">
+                <span id="status-p-r-arrow" class="hidden"></span>
+                <span id="status-p-r-diff" class="text-3xl font-extrabold text-slate-700 tracking-tighter leading-none">-</span>
+                <span id="status-p-r-pct" class="hidden">%</span>
+              </div>
+            </div>
+            
+            <div class="bg-[#f0ffff]/80 p-3 rounded-xl border border-[#bae6fd]/60 flex flex-col items-center justify-center">
+              <span class="text-[#0369a1]/70 text-[11px] font-bold mb-1 tracking-wide">刷题 · 听力</span>
+              <div class="flex items-end justify-center h-8 mt-1">
+                <span id="status-p-l-arrow" class="hidden"></span>
+                <span id="status-p-l-diff" class="text-3xl font-extrabold text-slate-700 tracking-tighter leading-none">-</span>
+                <span id="status-p-l-pct" class="hidden">%</span>
+              </div>
+            </div>
+
+            <div class="bg-[#f0fff0]/80 p-3 rounded-xl border border-[#bbf7d0]/60 flex flex-col items-center justify-center">
+              <span class="text-[#166534]/70 text-[11px] font-bold mb-1 tracking-wide">套题 · 阅读</span>
+              <div class="flex items-end justify-center h-8 mt-1">
+                <span id="status-t-r-arrow" class="hidden"></span>
+                <span id="status-t-r-diff" class="text-3xl font-extrabold text-slate-700 tracking-tighter leading-none">-</span>
+                <span id="status-t-r-pct" class="hidden">%</span>
+              </div>
+            </div>
+
+            <div class="bg-[#f0ffff]/80 p-3 rounded-xl border border-[#bae6fd]/60 flex flex-col items-center justify-center">
+              <span class="text-[#0369a1]/70 text-[11px] font-bold mb-1 tracking-wide">套题 · 听力</span>
+              <div class="flex items-end justify-center h-8 mt-1">
+                <span id="status-t-l-arrow" class="hidden"></span>
+                <span id="status-t-l-diff" class="text-3xl font-extrabold text-slate-700 tracking-tighter leading-none">-</span>
+                <span id="status-t-l-pct" class="hidden">%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-[#8FBC8F]/50 flex flex-col h-full">
+          <h2 class="text-[17px] font-semibold mb-4 flex items-center text-[#808000]">
+            <i data-lucide="alert-triangle" class="w-4 h-4 mr-1.5 text-indigo-500"></i> 智能波动预警 
+            <span class="text-[10px] text-slate-400 font-normal ml-auto mt-0.5">（做好精细复盘）</span>
+          </h2>
+          <div id="warning-container" class="space-y-4 overflow-hidden relative flex-1 min-h-[120px]">
+            <div class="flex items-center justify-center h-full text-slate-400 text-sm bg-slate-50 rounded-xl">
+               <i data-lucide="check-circle" class="w-5 h-5 mr-2 text-green-500"></i> 正在加载数据...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#8FBC8F]/50">
+        <h2 class="text-lg font-semibold mb-6 flex items-center text-[#808000]"><i data-lucide="trending-up" class="w-5 h-5 mr-2 text-[#9ACD32]"></i> 刷题模式 · 平均表现估算</h2>
+        <div class="grid grid-cols-2 gap-6 mb-8">
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 flex flex-col items-center justify-center">
+            <span class="text-[#6B8E23] text-sm font-medium mb-2">阅读综合等效分</span>
+            <div class="flex items-start">
+              <span id="stat-r-score" class="text-4xl font-bold text-slate-900">-</span>
+              <span id="stat-r-score-max" class="text-[11px] text-slate-400 font-medium ml-1 mt-1 tracking-tighter" title="各Part历史最高正确率拼接出的巅峰分"></span>
+            </div>
+            <span class="text-xs text-slate-400 mt-2">基于各Part平均正确数累加</span>
+          </div>
+          
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 flex flex-col items-center justify-center">
+            <span class="text-[#6B8E23] text-sm font-medium mb-2">听力综合等效分</span>
+            <div class="flex items-start">
+              <span id="stat-l-score" class="text-4xl font-bold text-slate-900">-</span>
+              <span id="stat-l-score-max" class="text-[11px] text-slate-400 font-medium ml-1 mt-1 tracking-tighter" title="各Part历史最高正确率拼接出的巅峰分"></span>
+            </div>
+            <span class="text-xs text-slate-400 mt-2">基于各Part平均正确数累加</span>
+          </div>
+        </div>
+
+        <div id="chart-bar-wrapper">
+          <h3 class="text-sm font-medium text-[#808000] mb-4 text-center">各 Part 平均正确率对比 (%)</h3>
+          <div class="h-64 relative">
+            <canvas id="chart-bar"></canvas>
+          </div>
+        </div>
+        <div id="chart-bar-empty" class="text-center text-slate-400 py-10 text-sm">还没有足够的刷题数据哦，快去录入吧~</div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-indigo-100">
+        <h2 class="text-lg font-semibold mb-6 flex items-center text-indigo-900"><i data-lucide="award" class="w-5 h-5 mr-2 text-indigo-500"></i> 套题模式 · 模考能力雷达</h2>
+        
+        <div id="chart-full-wrapper" class="grid grid-cols-1 md:grid-cols-2 gap-8 hidden">
+          <div class="h-72 bg-indigo-50/30 rounded-xl p-4 border border-indigo-50 relative">
+            <h3 class="text-sm font-medium text-indigo-800 mb-2 text-center">各试卷分数对比</h3>
+            <div class="relative w-full h-[calc(100%-24px)]">
+              <canvas id="chart-radar"></canvas>
+            </div>
+          </div>
+          <div class="h-72 bg-indigo-50/30 rounded-xl p-4 border border-indigo-50 relative">
+              <h3 class="text-sm font-medium text-indigo-800 mb-2 text-center">模考分数走势</h3>
+              <div class="relative w-full h-[calc(100%-24px)]">
+                <canvas id="chart-line"></canvas>
+              </div>
+          </div>
+        </div>
+        <div id="chart-full-empty" class="text-center text-slate-400 py-10 text-sm">暂无套题模考数据，平时也要多按考场时间训练哦！</div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div id="modal-custom" onclick="if(event.target === this) window.closeModal()" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0 duration-300">
+    <div class="bg-white rounded-2xl p-6 w-80 shadow-xl border border-[#8FBC8F]/50 transform transition-transform scale-95 duration-300" id="modal-custom-content">
+      <h3 class="text-lg font-bold text-[#808000] mb-4 flex items-center">
+        <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i><span id="modal-title">自定义新类别</span>
+      </h3>
+      <p class="text-sm text-slate-500 mb-3" id="modal-desc">请输入你要添加的新名称：</p>
+      <input type="text" id="modal-input" onkeydown="if(event.key === 'Enter') window.saveCustomData()" class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg focus:ring-2 focus:ring-[#8FBC8F]/50 outline-none mb-6 text-slate-800" placeholder="例如：九分达人 / 艺术类..." />
+      <div class="flex justify-end space-x-3">
+        <button onclick="window.closeModal()" class="px-4 py-2 rounded-lg text-sm text-slate-500 hover:bg-slate-100 transition">取消</button>
+        <button onclick="window.saveCustomData()" class="px-4 py-2 rounded-lg text-sm bg-[#6B8E23] text-white hover:bg-[#808000] transition shadow-sm">保存并添加</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-edit" onclick="if(event.target === this) window.closeEditModal()" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0 duration-300">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl border border-[#8FBC8F]/50 transform transition-transform scale-95 duration-300" id="modal-edit-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-[#808000] flex items-center">
+          <i data-lucide="edit-3" class="w-5 h-5 mr-2"></i>编辑记录
+        </h3>
+        <button onclick="window.closeEditModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      
+      <div id="edit-practice-content" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">做题日期</label>
+            <input type="date" id="e-date" class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-[#8FBC8F]/50 outline-none transition-colors" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">用时 (分钟)</label>
+            <input type="number" id="e-time" class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-[#8FBC8F]/50 outline-none transition-colors" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm text-slate-500 mb-1">来源详情 (可直接修改出处或 Part)</label>
+          <input type="text" id="e-source-detail" class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-[#8FBC8F]/50 outline-none transition-colors" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+           <div>
+            <label class="block text-sm text-slate-500 mb-1">总题数 (如P3可改为14)</label>
+            <input type="number" id="e-total" class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-[#8FBC8F]/50 outline-none transition-colors" />
+          </div>
+          <div>
+            <label class="block text-sm text-slate-500 mb-1">正确数</label>
+            <input type="number" id="e-correct" class="w-full p-2 border border-[#8FBC8F]/50 rounded-lg bg-slate-50 text-slate-900 focus:ring-2 focus:ring-[#8FBC8F]/50 outline-none transition-colors" />
+          </div>
+        </div>
+      </div>
+
+      <div id="edit-full-content" class="space-y-4 hidden">
+        <div class="grid grid-cols-3 gap-3 bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+           <div><label class="text-xs text-indigo-700/70 block mb-1">做题日期</label><input type="date" id="e-f-date" class="w-full p-1.5 border border-indigo-200 rounded bg-white text-sm outline-none focus:ring-1 focus:ring-indigo-300 text-slate-900" /></div>
+           <div><label class="text-xs text-indigo-700/70 block mb-1">试卷 (如: 16)</label><input type="text" id="e-f-book" class="w-full p-1.5 border border-indigo-200 rounded bg-white text-sm outline-none focus:ring-1 focus:ring-indigo-300 text-slate-900" /></div>
+           <div><label class="text-xs text-indigo-700/70 block mb-1">Test (如: 1)</label><input type="text" id="e-f-test" class="w-full p-1.5 border border-indigo-200 rounded bg-white text-sm outline-none focus:ring-1 focus:ring-indigo-300 text-slate-900" /></div>
+        </div>
+        <div class="grid grid-cols-4 gap-3">
+           <div><label class="text-xs text-slate-500">阅P1</label><input type="number" id="e-r1" class="w-full p-2 border border-indigo-200 rounded bg-white outline-none focus:ring-1 focus:ring-indigo-300" /></div>
+           <div><label class="text-xs text-slate-500">阅P2</label><input type="number" id="e-r2" class="w-full p-2 border border-indigo-200 rounded bg-white outline-none focus:ring-1 focus:ring-indigo-300" /></div>
+           <div><label class="text-xs text-slate-500">阅P3</label><input type="number" id="e-r3" class="w-full p-2 border border-indigo-200 rounded bg-white outline-none focus:ring-1 focus:ring-indigo-300" /></div>
+        </div>
+        <div class="grid grid-cols-4 gap-3">
+           <div><label class="text-xs text-slate-500">听P1</label><input type="number" id="e-l1" class="w-full p-2 border border-indigo-200 rounded bg-white outline-none focus:ring-1 focus:ring-indigo-300" /></div>
+           <div><label class="text-xs text-slate-500">听P2</label><input type="number" id="e-l2" class="w-full p-2 border border-indigo-200 rounded bg-white outline-none focus:ring-1 focus:ring-indigo-300" /></div>
+           <div><label class="text-xs text-slate-500">听P3</label><input type="number" id="e-l3" class="w-full p-2 border border-indigo-200 rounded bg-white outline-none focus:ring-1 focus:ring-indigo-300" /></div>
+           <div><label class="text-xs text-slate-500">听P4</label><input type="number" id="e-l4" class="w-full p-2 border border-indigo-200 rounded bg-white outline-none focus:ring-1 focus:ring-indigo-300" /></div>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-slate-100">
+        <button onclick="window.closeEditModal()" class="px-4 py-2 rounded-lg text-sm text-slate-500 hover:bg-slate-100 transition">取消</button>
+        <button onclick="window.saveEdit()" class="px-6 py-2 rounded-lg text-sm bg-[#6B8E23] text-white hover:bg-[#808000] transition shadow-sm">保存修改</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-confirm" onclick="if(event.target === this) window.closeConfirmModal()" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0 duration-300">
+    <div class="bg-white rounded-2xl p-6 w-80 shadow-xl border border-red-100 transform transition-transform scale-95 duration-300" id="modal-confirm-content">
+      <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center">
+        <i data-lucide="alert-triangle" class="w-5 h-5 mr-2 text-red-500"></i>确认删除
+      </h3>
+      <p class="text-sm text-slate-500 mb-6" id="modal-confirm-desc">这条记录删除后就找不回来啦，要继续吗？</p>
+      <div class="flex justify-end space-x-3">
+        <button onclick="window.closeConfirmModal()" class="px-4 py-2 rounded-lg text-sm text-slate-500 hover:bg-slate-100 transition">取消</button>
+        <button onclick="window.executeDelete()" class="px-4 py-2 rounded-lg text-sm bg-red-500 text-white hover:bg-red-600 transition shadow-sm">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+<div id="modal-redo" onclick="if(event.target === this) window.closeRedoModal()" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0 duration-300">
+    <div class="bg-white rounded-2xl p-6 w-80 shadow-xl border border-[#8FBC8F]/50 transform transition-transform scale-95 duration-300" id="modal-redo-content">
+      <h3 class="text-lg font-bold text-[#808000] mb-2 flex items-center">
+        <i data-lucide="refresh-cw" class="w-5 h-5 mr-2"></i>重复录入提示
+      </h3>
+      <p class="text-sm text-slate-500 mb-6" id="modal-redo-desc">今天已经录入过这篇练习啦，请问是二刷重新做了一遍吗？</p>
+      <div class="flex justify-end space-x-3">
+        <button onclick="window.closeRedoModal()" class="px-4 py-2 rounded-lg text-sm text-slate-500 hover:bg-slate-100 transition">取消</button>
+        <button onclick="window.confirmRedoSubmit()" class="px-4 py-2 rounded-lg text-sm bg-[#6B8E23] text-white hover:bg-[#808000] transition shadow-sm">是的，重新录入</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-[#808000] text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium z-50 transition-opacity duration-300 opacity-0 pointer-events-none tracking-wide">
+  </div>
+
+  <script>
+    // --- 全局状态 ---
+    // --- 点击齿轮，切换手机端日期显示/隐藏 ---
+    window.toggleDateSettings = function() {
+      const container = document.getElementById('date-settings-container');
+      // 切换一个类名
+      container.classList.toggle('mobile-show');
+      
+      // 简单的交互反馈：如果显示出来了，稍微提示一下
+      if (container.classList.contains('mobile-show')) {
+        // 这里可以不用弹窗，默默显示就好
+      }
+    };
+
+    window.practiceData = [];
+    window.fullTestData = [];
+    window.customData = { sources: [], topicsR: [], topicsL: [], books: [] };
+    window.editingItem = null; // { type: 'practice' | 'full', index: number, data: object }
+    
+    window.deleteTarget = null; // { type: 'practice' | 'full', id: number }
+    
+    // 模态框上下文
+    window.modalTarget = null; // 'source', 'topic', 'book'
+    window.prevSource = '剑雅';
+    window.prevTopic = '';
+    window.prevBook = '16';
+
+    // --- 本地存储工具函数 ---
+    // --- 新增：倒计时逻辑 ---
+    // --- 新增：动态倒计时与进度条逻辑 ---
+    window.saveDates = function() {
+      const s = document.getElementById('start-date').value;
+      const e = document.getElementById('exam-date').value;
+      if(s) localStorage.setItem('ielts_startDate', s);
+      if(e) localStorage.setItem('ielts_examDate', e);
+      window.updateCountdown();
+      window.showToast('备考周期更新啦！进度条已重新校准 🎯');
+    };
+
+    window.updateCountdown = function() {
+      const startStr = document.getElementById('start-date').value;
+      const targetStr = document.getElementById('exam-date').value;
+      if (!startStr || !targetStr) return;
+
+      const start = new Date(startStr);
+      const target = new Date(targetStr);
+      const today = new Date(window.todayStr);
+      
+      // 计算总周期天数（兜底最小为1天，防止除以0）
+      const totalTime = target - start;
+      const totalDays = Math.max(1, Math.ceil(totalTime / (1000 * 60 * 60 * 24))); 
+      
+      // 计算距离考试还有几天
+      const diffTime = target - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      const daysEl = document.getElementById('countdown-days');
+      const barEl = document.getElementById('countdown-bar');
+      const msgEl = document.getElementById('countdown-msg');
+      const percentEl = document.getElementById('countdown-percent');
+
+      if (diffDays > 0) {
+        daysEl.innerText = diffDays;
+        
+        // 算出已经过去了几天，然后除以总天数得到真实进度百分比！
+        const passedDays = Math.ceil((today - start) / (1000 * 60 * 60 * 24));
+        let percent = (passedDays / totalDays) * 100;
+        
+        // 保证视觉上条条不会超出去，也不会缩没影（保底3%）
+        percent = Math.max(3, Math.min(100, percent)); 
+        barEl.style.width = percent + '%';
+        
+        // 左下角显示精确的数字百分比
+        percentEl.innerText = Math.max(0, Math.min(100, Math.round((passedDays / totalDays) * 100))) + '%';
+        
+        if(diffDays <= 7) msgEl.innerText = "最后冲刺啦！稳住心态，你一定行的🔥";
+        else if(diffDays <= 30) msgEl.innerText = "进入关键期啦！每天都要保持题感哦🎯";
+        else msgEl.innerText = "星光不问赶路人，时光不负有心人✨";
+        
+      } else if (diffDays === 0) {
+        daysEl.innerText = "0";
+        barEl.style.width = '100%';
+        percentEl.innerText = '100%';
+        msgEl.innerText = "就是今天！放平心态，屠鸭顺利🎉";
+      } else {
+        daysEl.innerText = "-";
+        barEl.style.width = '100%';
+        barEl.className = "bg-slate-300 h-full rounded-full transition-all duration-1000 ease-out w-full"; 
+        percentEl.innerText = '100%';
+        msgEl.innerText = "考试已经结束啦，辛苦了！开启新篇章吧🌈";
+      }
+    };
+
+    window.saveToLocalStorage = function(key, data) {
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch (e) {
+        console.error("Local storage error:", e);
+      }
+    };
+
+    window.loadFromLocalStorage = function() {
+      try {
+        const pData = localStorage.getItem('ielts_practiceData');
+        const fData = localStorage.getItem('ielts_fullTestData');
+        const cData = localStorage.getItem('ielts_customData');
+
+        if (pData) {
+          window.practiceData = JSON.parse(pData);
+          
+          // 【👉 强迫症治愈魔法：静默批量修正历史数据】
+          let needResave = false;
+          window.practiceData.forEach(d => {
+            if (d.sourceDetail && (d.sourceDetail.includes(' S1 ') || d.sourceDetail.includes(' S2 ') || d.sourceDetail.includes(' S3 ') || d.sourceDetail.includes(' S4 '))) {
+              d.sourceDetail = d.sourceDetail.replace(' S1 ', ' T1 ').replace(' S2 ', ' T2 ').replace(' S3 ', ' T3 ').replace(' S4 ', ' T4 ');
+              needResave = true;
+            }
+          });
+          // 如果发现并修复了旧数据，就重新存进本地保险箱
+          if (needResave) {
+            window.saveToLocalStorage('ielts_practiceData', window.practiceData);
+          }
+        }
+        if (fData) window.fullTestData = JSON.parse(fData);
+        if (cData) window.customData = JSON.parse(cData);
+
+        // 数据加载完毕后，刷新各个界面元素
+        window.renderHistory();
+        window.updateDashboard();
+        window.updateSourceDropdown();
+        window.updateTopicDropdown();
+        window.updateBookDropdown();
+
+        const storedStart = localStorage.getItem('ielts_startDate');
+        const storedDate = localStorage.getItem('ielts_examDate');
+        // 如果没存过，默认起点暂定为上个月或者今天，终点为你说的 4月12日
+        document.getElementById('start-date').value = storedStart || '2026-03-01'; 
+        document.getElementById('exam-date').value = storedDate || '2026-04-12';
+        if(window.updateCountdown) window.updateCountdown();
+
+      } catch (e) {
+        console.error("Failed to load from local storage:", e);
+      }
+    };
+
+    // --- 基础配置 ---
+    window.SCORE_MAP = [
+      { min: 39, max: 40, score: 9.0 }, { min: 37, max: 38, score: 8.5 },
+      { min: 35, max: 36, score: 8.0 }, { min: 33, max: 34, score: 7.5 },
+      { min: 30, max: 32, score: 7.0 }, { min: 27, max: 29, score: 6.5 },
+      { min: 23, max: 26, score: 6.0 }, { min: 20, max: 22, score: 5.5 },
+      { min: 16, max: 19, score: 5.0 },
+    ];
+    window.getScore = (correct) => {
+      const match = window.SCORE_MAP.find(s => correct >= s.min && correct <= s.max);
+      return match ? match.score : 4.5; 
+    };
+
+    window.READING_PARTS = { '1': 13, '2': 13, '3': 14 };
+    window.LISTENING_PARTS = { '1': 10, '2': 10, '3': 10, '4': 10 };
+    window.READING_TOPICS = ['历史发展', '生物科技', '环境保护', '心理学', '教育语言', '商业管理'];
+    window.LISTENING_TOPICS = ['租房住宿', '旅游出行', '求职工作', '课程讨论', '学术讲座', '校园生活'];
+    window.currentSubject = 'reading';
+
+    const getBeijingDateString = () => {
+      const d = new Date();
+      const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+      const nd = new Date(utc + (3600000 * 8)); 
+      return nd.toISOString().split('T')[0];
+    };
+    window.todayStr = getBeijingDateString();
+    // --- 自动更新日期的守护进程 ---
+    window.autoRefreshDate = function() {
+    const newDate = getBeijingDateString();
+    
+    // 如果日期变了（跨天了）
+    if (newDate !== window.todayStr) {
+        window.todayStr = newDate;
+        
+        // 1. 更新录入框的默认日期
+        const pDateInput = document.getElementById('p-date');
+        const fDateInput = document.getElementById('f-date');
+        if (pDateInput) pDateInput.value = newDate;
+        if (fDateInput) fDateInput.value = newDate;
+        
+        // 2. 重新计算屠鸭倒计时和进度条
+        if (window.updateCountdown) window.updateCountdown();
+        
+        // 3. 重新刷新看板（因为“今日完成”的统计依赖于 todayStr）
+        if (window.updateDashboard) window.updateDashboard();
+        
+        console.log("📅 零点守护：日期已自动同步为 " + newDate);
+    }
+};
+
+    // --- UI 交互暴露到全局 ---
+    window.switchTab = function(tabId) {
+      document.getElementById('view-input').classList.toggle('hidden-tab', tabId !== 'input');
+      document.getElementById('view-dashboard').classList.toggle('hidden-tab', tabId !== 'dashboard');
+      
+      // 👇 这里的 text-base 被固定在了公共样式里，不论选中与否都不会变大小啦
+      document.getElementById('tab-input').className = `flex items-center space-x-1 h-full px-2 border-b-2 transition-colors text-base ${tabId === 'input' ? 'border-[#6B8E23] text-[#6B8E23] font-bold' : 'border-transparent text-slate-500 hover:text-[#6B8E23]'}`;
+      document.getElementById('tab-dashboard').className = `flex items-center space-x-1 h-full px-2 border-b-2 transition-colors text-base ${tabId === 'dashboard' ? 'border-[#6B8E23] text-[#6B8E23] font-bold' : 'border-transparent text-slate-500 hover:text-[#6B8E23]'}`;
+      
+      if(tabId === 'dashboard') window.updateDashboard();
+    };
+
+    window.switchInputMode = function(mode) {
+      document.getElementById('form-practice').classList.toggle('hidden', mode !== 'practice');
+      document.getElementById('form-full').classList.toggle('hidden', mode !== 'full');
+      document.getElementById('btn-mode-practice').className = `px-6 py-2 rounded-lg text-sm font-medium transition ${mode === 'practice' ? 'bg-[#6B8E23] text-white shadow-md' : 'text-[#808000] hover:bg-[#8FBC8F]/20'}`;
+      document.getElementById('btn-mode-full').className = `px-6 py-2 rounded-lg text-sm font-medium transition ${mode === 'full' ? 'bg-indigo-500 text-white shadow-md' : 'text-indigo-800 hover:bg-indigo-100'}`;
+    };
+
+    window.setPSubject = function(subj) {
+      window.currentSubject = subj;
+      document.getElementById('p-btn-reading').className = `flex-1 py-1 rounded-md text-sm font-medium transition ${subj === 'reading' ? 'bg-white shadow-sm text-[#6B8E23]' : 'text-slate-500 hover:text-[#808000]'}`;
+      document.getElementById('p-btn-listening').className = `flex-1 py-1 rounded-md text-sm font-medium transition ${subj === 'listening' ? 'bg-white shadow-sm text-[#6B8E23]' : 'text-slate-500 hover:text-[#808000]'}`;
+      
+      const camSec = document.getElementById('p-cam-section');
+      camSec.innerHTML = '';
+      const parts = subj === 'reading' ? ['P1','P2','P3'] : ['P1','P2','P3','P4'];
+      parts.forEach(p => camSec.add(new Option(p, p)));
+
+      const jjPart = document.getElementById('p-jj-part');
+      jjPart.innerHTML = '';
+      const jjParts = subj === 'reading' ? ['1','2','3'] : ['1','2','3','4'];
+      jjParts.forEach(p => jjPart.add(new Option(`Part ${p}`, p)));
+
+      document.getElementById('p-time-container').style.display = subj === 'reading' ? 'block' : 'none';
+      document.getElementById('p-correct-container').className = subj === 'reading' ? '' : 'col-span-2';
+
+      window.updateTopicDropdown();
+      window.updateMaxScore();
+    };
+
+    // --- 动态下拉菜单更新 (支持自定义) ---
+    window.updateSourceDropdown = function() {
+      const select = document.getElementById('p-source');
+      const prev = select.value || '剑雅';
+      select.innerHTML = `
+        <option value="剑雅">剑雅 (碎片化)</option>
+        <option value="机经">机经题目</option>
+      `;
+      window.customData.sources.forEach(s => select.add(new Option(s, s)));
+      
+      const addOpt = new Option('+ 自定义新类别...', '_add_new_');
+      addOpt.className = 'text-[#808000] font-bold';
+      select.add(addOpt);
+      
+      // 保持之前的选择
+      let exists = Array.from(select.options).some(o => o.value === prev);
+      select.value = exists ? prev : '剑雅';
+      window.prevSource = select.value;
+      window.updateSourceUI();
+    };
+
+    window.updateTopicDropdown = function() {
+      const topicSelect = document.getElementById('p-jj-topic');
+      const prev = topicSelect.value;
+      topicSelect.innerHTML = '';
+      const baseTopics = window.currentSubject === 'reading' ? window.READING_TOPICS : window.LISTENING_TOPICS;
+      const cTopics = window.currentSubject === 'reading' ? window.customData.topicsR : window.customData.topicsL;
+
+      baseTopics.forEach(t => topicSelect.add(new Option(t, t)));
+      cTopics.forEach(t => topicSelect.add(new Option(t, t)));
+      
+      const addOpt = new Option('+ 自定义新话题...', '_add_new_');
+      addOpt.className = 'text-[#808000] font-bold';
+      topicSelect.add(addOpt);
+
+      let exists = Array.from(topicSelect.options).some(o => o.value === prev);
+      topicSelect.value = exists ? prev : baseTopics[0];
+      window.prevTopic = topicSelect.value;
+    };
+
+    window.updateBookDropdown = function() {
+      const bookSelect = document.getElementById('f-book');
+      const prev = bookSelect.value;
+      bookSelect.innerHTML = `
+        <option value="14">剑14</option><option value="15">剑15</option><option value="16">剑16</option>
+        <option value="17">剑17</option><option value="18">剑18</option><option value="19">剑19</option><option value="20">剑20</option>
+      `;
+      window.customData.books.forEach(b => bookSelect.add(new Option(b, b)));
+      
+      const addOpt = new Option('+ 自定义试卷...', '_add_new_');
+      addOpt.className = 'text-indigo-600 font-bold';
+      bookSelect.add(addOpt);
+
+      let exists = Array.from(bookSelect.options).some(o => o.value === prev);
+      bookSelect.value = exists ? prev : '16';
+      window.prevBook = bookSelect.value;
+    };
+
+    // 监听下拉变化，处理打开弹窗的逻辑
+    window.handleSourceChange = function() {
+      const select = document.getElementById('p-source');
+      if (select.value === '_add_new_') {
+        select.value = window.prevSource || '剑雅'; 
+        window.openModal('source', '自定义新的题目来源', '例如：九分达人 / 真题语料库...');
+        return;
+      }
+      window.prevSource = select.value;
+      window.updateSourceUI();
+    };
+
+    window.handleTopicChange = function() {
+      const select = document.getElementById('p-jj-topic');
+      if (select.value === '_add_new_') {
+        select.value = window.prevTopic || select.options[0].value;
+        window.openModal('topic', '自定义机经话题', '例如：天文学 / 建筑史...');
+        return;
+      }
+      window.prevTopic = select.value;
+    };
+
+    window.handleBookChange = function() {
+      const select = document.getElementById('f-book');
+      if (select.value === '_add_new_') {
+        select.value = window.prevBook || '16';
+        window.openModal('book', '自定义套题试卷', '例如：剑21 / 模考题A卷...');
+        return;
+      }
+      window.prevBook = select.value;
+    };
+
+    window.updateSourceUI = function() {
+      const val = document.getElementById('p-source').value;
+      const isCam = val === '剑雅';
+      const isJj = val === '机经';
+      const isCustom = !isCam && !isJj; // 自定义的来源
+
+      document.getElementById('p-source-cambridge').classList.toggle('hidden', !isCam);
+      document.getElementById('p-source-jijing').classList.toggle('hidden', !isJj);
+      document.getElementById('p-source-custom').classList.toggle('hidden', !isCustom);
+      
+      window.updateMaxScore();
+    };
+
+    window.updateMaxScore = function() {
+      const sourceVal = document.getElementById('p-source').value;
+      let activePart = '1'; // 默认
+      let maxScore = 40;
+      
+      if (sourceVal === '剑雅') {
+        activePart = document.getElementById('p-cam-section').value.replace('P', '');
+        maxScore = window.currentSubject === 'reading' ? window.READING_PARTS[activePart] : window.LISTENING_PARTS[activePart];
+      } else if (sourceVal === '机经') {
+        activePart = document.getElementById('p-jj-part').value;
+        maxScore = window.currentSubject === 'reading' ? window.READING_PARTS[activePart] : window.LISTENING_PARTS[activePart];
+      } else {
+        // 自定义来源时放宽限制
+        maxScore = 40; 
+      }
+      
+      document.getElementById('p-correct-label').innerText = `正确题数 (满分 ${maxScore}题)`;
+      // 保存当前满分用于校验
+      document.getElementById('p-correct').dataset.max = maxScore;
+    };
+
+    // --- 模态框逻辑 (自定义) ---
+    window.openModal = function(target, title, placeholder) {
+      window.modalTarget = target;
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-input').placeholder = placeholder;
+      document.getElementById('modal-input').value = '';
+      
+      const modal = document.getElementById('modal-custom');
+      const content = document.getElementById('modal-custom-content');
+      modal.classList.remove('hidden');
+      
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95');
+        document.getElementById('modal-input').focus();
+      }, 10);
+    };
+
+    window.closeModal = function() {
+      const modal = document.getElementById('modal-custom');
+      const content = document.getElementById('modal-custom-content');
+      modal.classList.add('opacity-0');
+      content.classList.add('scale-95');
+      setTimeout(() => modal.classList.add('hidden'), 300);
+    };
+
+    window.saveCustomData = function() {
+      const val = document.getElementById('modal-input').value.trim();
+      if (!val) { window.closeModal(); return; }
+
+      if (window.modalTarget === 'source') {
+        if (!window.customData.sources.includes(val)) window.customData.sources.push(val);
+      } else if (window.modalTarget === 'topic') {
+        if (window.currentSubject === 'reading') {
+          if (!window.customData.topicsR.includes(val)) window.customData.topicsR.push(val);
+        } else {
+          if (!window.customData.topicsL.includes(val)) window.customData.topicsL.push(val);
+        }
+      } else if (window.modalTarget === 'book') {
+        if (!window.customData.books.includes(val)) window.customData.books.push(val);
+      }
+
+      window.saveToLocalStorage('ielts_customData', window.customData);
+
+      window.closeModal();
+      if (window.modalTarget === 'source') {
+        window.updateSourceDropdown();
+        document.getElementById('p-source').value = val;
+        window.prevSource = val;
+        window.updateSourceUI();
+      } else if (window.modalTarget === 'topic') {
+        window.updateTopicDropdown();
+        document.getElementById('p-jj-topic').value = val;
+        window.prevTopic = val;
+      } else if (window.modalTarget === 'book') {
+        window.updateBookDropdown();
+        document.getElementById('f-book').value = val;
+        window.prevBook = val;
+      }
+      
+      window.showToast('新类别添加成功啦！🌿');
+    };
+
+    // --- 编辑模态框逻辑 ---
+    window.openEditModal = function(type, id) {
+      window.editingItem = { type, id };
+      
+      const modal = document.getElementById('modal-edit');
+      const content = document.getElementById('modal-edit-content');
+      
+      if (type === 'practice') {
+        const item = window.practiceData.find(d => d.id === id);
+        if (!item) return;
+        
+        document.getElementById('edit-practice-content').classList.remove('hidden');
+        document.getElementById('edit-full-content').classList.add('hidden');
+        
+        document.getElementById('e-date').value = item.date;
+        document.getElementById('e-time').value = item.time || '';
+        document.getElementById('e-source-detail').value = item.sourceDetail;
+        document.getElementById('e-total').value = item.total;
+        document.getElementById('e-correct').value = item.correct;
+        document.getElementById('e-correct').dataset.max = item.total;
+
+      } else if (type === 'full') {
+        const item = window.fullTestData.find(d => d.id === id);
+        if (!item) return;
+
+        document.getElementById('edit-practice-content').classList.add('hidden');
+        document.getElementById('edit-full-content').classList.remove('hidden');
+
+        document.getElementById('e-f-date').value = item.date;
+        document.getElementById('e-f-book').value = item.cambridgeBook;
+        document.getElementById('e-f-test').value = item.testNum;
+        
+        document.getElementById('e-r1').value = item.r1;
+        document.getElementById('e-r2').value = item.r2;
+        document.getElementById('e-r3').value = item.r3;
+        document.getElementById('e-l1').value = item.l1;
+        document.getElementById('e-l2').value = item.l2;
+        document.getElementById('e-l3').value = item.l3;
+        document.getElementById('e-l4').value = item.l4;
+      }
+
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95');
+      }, 10);
+    };
+
+    window.closeEditModal = function() {
+      const modal = document.getElementById('modal-edit');
+      const content = document.getElementById('modal-edit-content');
+      modal.classList.add('opacity-0');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        window.editingItem = null;
+      }, 300);
+    };
+
+    window.saveEdit = function() {
+      const { type, id } = window.editingItem;
+      
+      if (type === 'practice') {
+        const idx = window.practiceData.findIndex(d => d.id === id);
+        if (idx === -1) return;
+        
+        const correct = parseInt(document.getElementById('e-correct').value);
+        const total = parseInt(document.getElementById('e-total').value);
+        
+        if (isNaN(correct) || correct < 0 || correct > total) {
+          window.showToast('正确题数不能超过总题数哦！', 'warn');
+          document.getElementById('e-correct').classList.add('input-error');
+          setTimeout(() => document.getElementById('e-correct').classList.remove('input-error'), 500);
+          return;
+        }
+
+        window.practiceData[idx].date = document.getElementById('e-date').value;
+        window.practiceData[idx].time = document.getElementById('e-time').value;
+        window.practiceData[idx].correct = correct;
+        window.practiceData[idx].total = total; // 允许修改满分
+        window.practiceData[idx].sourceDetail = document.getElementById('e-source-detail').value.trim(); // 允许直接改文字
+        
+      } else if (type === 'full') {
+        const idx = window.fullTestData.findIndex(d => d.id === id);
+        if (idx === -1) return;
+
+        const r1 = parseInt(document.getElementById('e-r1').value);
+        const r2 = parseInt(document.getElementById('e-r2').value);
+        const r3 = parseInt(document.getElementById('e-r3').value);
+        const l1 = parseInt(document.getElementById('e-l1').value);
+        const l2 = parseInt(document.getElementById('e-l2').value);
+        const l3 = parseInt(document.getElementById('e-l3').value);
+        const l4 = parseInt(document.getElementById('e-l4').value);
+
+        if ([r1, r2, r3, l1, l2, l3, l4].some(isNaN)) {
+           window.showToast('请填完所有Part的数字哦！', 'warn');
+           return;
+        }
+        if (r1 > 13 || r2 > 13 || r3 > 14 || l1 > 10 || l2 > 10 || l3 > 10 || l4 > 10) {
+           window.showToast('有个别Part的正确题数超过满分啦，请核对一下~', 'warn');
+           return;
+        }
+
+        const item = window.fullTestData[idx];
+        const fDate = document.getElementById('e-f-date').value;
+        const fBook = document.getElementById('e-f-book').value.trim();
+        const fTest = document.getElementById('e-f-test').value.trim();
+        if(fDate) item.date = fDate;
+        if(fBook) item.cambridgeBook = fBook;
+        if(fTest) item.testNum = fTest;
+        item.r1 = r1; item.r2 = r2; item.r3 = r3;
+        item.l1 = l1; item.l2 = l2; item.l3 = l3; item.l4 = l4;
+        item.totalR = r1 + r2 + r3;
+        item.totalL = l1 + l2 + l3 + l4;
+        item.scoreR = window.getScore(item.totalR);
+        item.scoreL = window.getScore(item.totalL);
+      }
+
+      // 保存
+      if (type === 'practice') window.saveToLocalStorage('ielts_practiceData', window.practiceData);
+      if (type === 'full') window.saveToLocalStorage('ielts_fullTestData', window.fullTestData);
+
+      window.closeEditModal();
+      window.renderHistory();
+      window.showToast('记录修改成功！📝');
+    };
+
+    // --- 删除确认模态框逻辑 ---
+    window.openConfirmModal = function(type, id) {
+      window.deleteTarget = { type, id };
+      const modal = document.getElementById('modal-confirm');
+      const content = document.getElementById('modal-confirm-content');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95');
+      }, 10);
+    };
+
+    window.closeConfirmModal = function() {
+      const modal = document.getElementById('modal-confirm');
+      const content = document.getElementById('modal-confirm-content');
+      modal.classList.add('opacity-0');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        window.deleteTarget = null;
+      }, 300);
+    };
+
+    window.executeDelete = function() {
+      if (!window.deleteTarget) return;
+      const { type, id } = window.deleteTarget;
+
+      if (type === 'practice') {
+        window.practiceData = window.practiceData.filter(d => d.id !== id);
+        window.saveToLocalStorage('ielts_practiceData', window.practiceData);
+        window.showToast('记录已删除 🗑️', 'warn');
+      } else if (type === 'full') {
+        window.fullTestData = window.fullTestData.filter(d => d.id !== id);
+        window.saveToLocalStorage('ielts_fullTestData', window.fullTestData);
+        window.showToast('套题记录已删除 🗑️', 'warn');
+      }
+
+      window.renderHistory();
+      window.closeConfirmModal();
+    };
+
+    // --- Toast ---
+    window.showToast = function(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.backgroundColor = type === 'warn' ? '#f59e0b' : '#808000';
+      t.style.opacity = '1';
+      t.style.transform = 'translate(-50%, -20px)';
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translate(-50%, 0)';
+      }, 3000);
+    };
+
+    // --- 数据提交与删除逻辑 (本地存储) ---
+    window.handlePracticeSubmit = function() {
+      const source = document.getElementById('p-source').value;
+      const isCam = source === '剑雅';
+      const isJj = source === '机经';
+      
+      let activePart = '1';
+      let maxCorrect = 40;
+
+      if (isCam) {
+        activePart = document.getElementById('p-cam-section').value.replace('P', '');
+        maxCorrect = window.currentSubject === 'reading' ? window.READING_PARTS[activePart] : window.LISTENING_PARTS[activePart];
+      } else if (isJj) {
+        activePart = document.getElementById('p-jj-part').value;
+        maxCorrect = window.currentSubject === 'reading' ? window.READING_PARTS[activePart] : window.LISTENING_PARTS[activePart];
+      } else {
+        // 自定义模式下不再硬性限制为Part1的题数
+        maxCorrect = 40; 
+      }
+      
+      const correctVal = document.getElementById('p-correct').value;
+      const correctNum = parseInt(correctVal);
+      const dateVal = document.getElementById('p-date').value;
+      const timeVal = window.currentSubject === 'reading' ? document.getElementById('p-time').value : '';
+      
+      let sourceDetail = '';
+      if (isCam) {
+        sourceDetail = `${document.getElementById('p-cam-book').value} ${document.getElementById('p-cam-test').value} ${document.getElementById('p-cam-section').value}`;
+      } else if (isJj) {
+        sourceDetail = `机经 P${activePart} (${document.getElementById('p-jj-topic').value})`;
+      } else {
+        const cDetail = document.getElementById('p-custom-detail').value.trim() || '综合测试';
+        sourceDetail = `${source} (${cDetail})`;
+      }
+
+      if (isNaN(correctNum) || correctNum < 0 || correctNum > maxCorrect || correctVal.trim() === '') {
+        window.showToast(`填写有误哦！此项满分是 ${maxCorrect}，请检查一下正确题数~`, 'warn');
+        return;
+      }
+
+      const isDuplicate = window.practiceData.some(d => d.date === dateVal && d.subject === window.currentSubject && d.sourceDetail === sourceDetail && d.correct === correctNum);
+      if (isDuplicate) {
+        window.showToast('小提示：这条记录刚刚好像已经录入过了哦，不用重复按回车啦~', 'warn');
+        return;
+      }
+
+      const entry = {
+        id: Date.now(),
+        date: dateVal,
+        subject: window.currentSubject,
+        source: source,
+        part: activePart,
+        correct: correctNum,
+        total: maxCorrect,
+        time: timeVal,
+        sourceDetail: sourceDetail
+      };
+
+      window.practiceData.push(entry);
+      window.showToast('太棒了！又完成了一次刷题记录，继续保持！🌟');
+      document.getElementById('p-correct').value = ''; 
+      document.getElementById('p-time').value = '';
+      window.renderHistory();
+      window.saveToLocalStorage('ielts_practiceData', window.practiceData);
+    };
+
+    window.handleFullSubmit = function() {
+      const getV = (id) => parseInt(document.getElementById(id).value);
+      const r1 = getV('f-r1'), r2 = getV('f-r2'), r3 = getV('f-r3');
+      const l1 = getV('f-l1'), l2 = getV('f-l2'), l3 = getV('f-l3'), l4 = getV('f-l4');
+      const dateVal = document.getElementById('f-date').value;
+      const bookVal = document.getElementById('f-book').value;
+      const testVal = document.getElementById('f-test').value;
+
+      if ([r1, r2, r3, l1, l2, l3, l4].some(isNaN)) {
+        window.showToast('请仔细地填满所有Part的正确题数哦~', 'warn'); 
+        return;
+      }
+      if (r1 > 13 || r2 > 13 || r3 > 14 || l1 > 10 || l2 > 10 || l3 > 10 || l4 > 10) {
+        window.showToast('有个别Part的正确题数超过满分啦，请核对一下~', 'warn'); 
+        return;
+      }
+
+      const isDuplicate = window.fullTestData.some(d => 
+        d.date === dateVal && d.cambridgeBook === bookVal && d.testNum === testVal &&
+        d.r1 === r1 && d.r2 === r2 && d.r3 === r3 &&
+        d.l1 === l1 && d.l2 === l2 && d.l3 === l3 && d.l4 === l4
+      );
+      if (isDuplicate) {
+        window.showToast('小提示：这套题的数据刚刚好像已经录入过了哦，不用重复按回车啦~', 'warn');
+        return;
+      }
+
+      const totalR = r1 + r2 + r3;
+      const totalL = l1 + l2 + l3 + l4;
+
+      const entry = {
+        id: Date.now(),
+        date: dateVal,
+        cambridgeBook: bookVal,
+        testNum: testVal,
+        status: document.getElementById('f-status').value,
+        r1, r2, r3, l1, l2, l3, l4,
+        totalR, scoreR: window.getScore(totalR),
+        totalL, scoreL: window.getScore(totalL)
+      };
+
+      window.fullTestData.push(entry);
+      window.showToast('辛苦啦！做完一整套题一定很累吧，好好休息一下！☕');
+      ['f-r1','f-r2','f-r3','f-l1','f-l2','f-l3','f-l4'].forEach(id => document.getElementById(id).value = '');
+      window.renderHistory();
+      window.saveToLocalStorage('ielts_fullTestData', window.fullTestData);
+    };
+
+    window.deletePractice = function(id) {
+      window.openConfirmModal('practice', id);
+    };
+
+    window.deleteFull = function(id) {
+      window.openConfirmModal('full', id);
+    };
+
+    window.renderHistory = function() {
+      const pContainer = document.getElementById('p-history-container');
+      const pList = document.getElementById('p-history-list');
+      pList.innerHTML = '';
+      if (window.practiceData.length > 0) {
+        pContainer.classList.remove('hidden');
+        [...window.practiceData].reverse().slice(0, 10).forEach(d => {
+          const subjectColor = d.subject === 'reading' ? 'text-green-600' : 'text-blue-500';
+          const subjectName = d.subject === 'reading' ? '阅读' : '听力';
+          const div = document.createElement('div');
+          div.className = 'record-item flex justify-between items-center bg-slate-50/50 p-3 rounded-lg border border-slate-100/60 shadow-sm';
+          div.innerHTML = `
+            <div class="flex flex-col flex-1">
+              <span class="text-sm font-medium text-slate-700">${d.sourceDetail} <span class="${subjectColor} ml-1">${subjectName}</span></span>
+              <span class="text-xs text-slate-400 mt-0.5">${d.date} | 答对: ${d.correct}/${d.total}题</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <button onclick="window.openEditModal('practice', ${d.id})" class="text-slate-400 hover:text-[#6B8E23] p-1.5 rounded-md hover:bg-[#8FBC8F]/10 transition" title="编辑">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              </button>
+              <button onclick="window.deletePractice(${d.id})" class="text-slate-400 hover:text-red-400 p-1.5 rounded-md hover:bg-red-50 transition" title="删除">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          `;
+          pList.appendChild(div);
+        });
+      } else {
+        pContainer.classList.add('hidden');
+      }
+
+      const fContainer = document.getElementById('f-history-container');
+      const fList = document.getElementById('f-history-list');
+      fList.innerHTML = '';
+      if (window.fullTestData.length > 0) {
+        fContainer.classList.remove('hidden');
+        [...window.fullTestData].reverse().slice(0, 10).forEach(d => {
+          let testTitle = isNaN(d.cambridgeBook) ? `${d.cambridgeBook} Test ${d.testNum}` : `剑${d.cambridgeBook} Test ${d.testNum}`;
+          const div = document.createElement('div');
+          div.className = 'record-item flex justify-between items-center bg-white p-3 rounded-lg border border-indigo-50 shadow-sm';
+          div.innerHTML = `
+            <div class="flex flex-col flex-1">
+              <span class="text-sm font-medium text-indigo-900">${testTitle} (${d.status})</span>
+              <span class="text-xs text-indigo-400 mt-0.5">${d.date} | 阅: ${d.scoreR}分 (${d.totalR}对) | 听: ${d.scoreL}分 (${d.totalL}对)</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <button onclick="window.openEditModal('full', ${d.id})" class="text-slate-400 hover:text-indigo-500 p-1.5 rounded-md hover:bg-indigo-50 transition" title="编辑">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              </button>
+              <button onclick="window.deleteFull(${d.id})" class="text-slate-400 hover:text-red-400 p-1.5 rounded-md hover:bg-red-50 transition" title="删除">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          `;
+          fList.appendChild(div);
+        });
+      } else {
+        fContainer.classList.add('hidden');
+      }
+
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      if (!document.getElementById('view-dashboard').classList.contains('hidden-tab')) {
+        window.updateDashboard();
+      }
+    };
+
+    // --- 图表变量 & Dashboard ---
+    window.chartActivityInstance = null;
+    window.chartBarInstance = null;
+    window.chartRadarInstance = null;
+    window.chartLineInstance = null;
+
+    window.updateDashboard = function() {
+      // ==========================================
+      // 1. 统计学习热力追踪 (今日与累计完成篇数)
+      // ==========================================
+      let todayCount = 0, todayR = 0, todayL = 0; // 存放今天的数据
+      let totalCount = 0, totalR = 0, totalL = 0; // 存放历史所有累计的数据
+      const dailyMap = {}; // 用来记录每一天做了多少篇，给画折线图用
+
+      // 这是一个通用小助手：负责把每一篇练习按日期和科目加进统计里
+      const addCount = (date, count, rCount = 0, lCount = 0) => {
+        if (!dailyMap[date]) dailyMap[date] = 0;
+        dailyMap[date] += count; // 每日总数累加
+        totalCount += count;     // 历史总数累加
+        totalR += rCount;        // 历史阅读累加
+        totalL += lCount;        // 历史听力累加
+        // 如果日期是今天，就单独给今天的变量加一笔
+        if (date === window.todayStr) {
+          todayCount += count;
+          todayR += rCount;
+          todayL += lCount;
+        }
+      };
+
+      // 遍历刷题记录：每条记录算作 1 篇
+      window.practiceData.forEach(d => {
+        const isR = d.subject === 'reading' ? 1 : 0;
+        const isL = d.subject === 'listening' ? 1 : 0;
+        addCount(d.date, 1, isR, isL);
+      });
+      
+      // 遍历套题记录：每套题包含 3篇阅读 + 4篇听力，一共算 7 篇
+      window.fullTestData.forEach(d => {
+        addCount(d.date, 7, 3, 4); 
+      });
+
+      // 把算好的总数更新到页面最上面的数字格子里
+      document.getElementById('stat-today').innerText = todayCount;
+      document.getElementById('stat-today-r').innerText = todayR;
+      document.getElementById('stat-today-l').innerText = todayL;
+      document.getElementById('stat-total').innerText = totalCount;
+      document.getElementById('stat-total-r').innerText = totalR;
+      document.getElementById('stat-total-l').innerText = totalL;
+
+      // ==========================================
+      // 2. 绘制“学习热力追踪”那条绿色的努力折线图
+      // ==========================================
+      const dates = Object.keys(dailyMap).sort(); // 把有记录的日期排个序
+      const activityChartData = dates.map(date => dailyMap[date]);
+      const activityLabels = dates.map(date => date.substring(5)); // 只取月-日，比如 "03-24"
+
+      if (dates.length > 0) {
+        document.getElementById('chart-activity-container').style.display = 'block';
+        document.getElementById('chart-activity-empty').style.display = 'none';
+        window.renderActivityChart(activityLabels, activityChartData); // 召唤画图函数
+      } else {
+        document.getElementById('chart-activity-container').style.display = 'none';
+        document.getElementById('chart-activity-empty').style.display = 'block';
+      }
+
+      // ==========================================
+      // 3. 计算刷题模式下，各个 Part 的平均正确率
+      // ==========================================
+      // 先建一个大空壳，把各个 Part 的成绩分门别类装进去
+      const stats = { reading: { parts: { 1: [], 2: [], 3: [] } }, listening: { parts: { 1: [], 2: [], 3: [], 4: [] } } };
+      window.practiceData.forEach(d => {
+        if (stats[d.subject] && stats[d.subject].parts[d.part]) {
+          stats[d.subject].parts[d.part].push(d.correct);
+        }
+      });
+
+      // 三个计算小助手：算平均数、算百分比正确率、算历史最高正确率
+      const calcAvg = (arr) => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
+      const calcRate = (avg, total) => total > 0 ? parseFloat(((avg / total) * 100).toFixed(1)) : 0;
+      const calcMaxRate = (arr, total) => arr.length ? parseFloat(((Math.max(...arr) / total) * 100).toFixed(1)) : 0;
+
+      // 分别计算阅读和听力各个 Part 的平均答对题数
+      const r1Avg = calcAvg(stats.reading.parts[1]); const r2Avg = calcAvg(stats.reading.parts[2]); const r3Avg = calcAvg(stats.reading.parts[3]);
+      const rTotalAvg = Math.round(r1Avg + r2Avg + r3Avg); // 加起来拼成一套完整的阅读
+      const rScore = rTotalAvg > 0 ? window.getScore(rTotalAvg) : '-'; // 估算雅思分数
+
+      const l1Avg = calcAvg(stats.listening.parts[1]); const l2Avg = calcAvg(stats.listening.parts[2]);
+      const l3Avg = calcAvg(stats.listening.parts[3]); const l4Avg = calcAvg(stats.listening.parts[4]);
+      const lTotalAvg = Math.round(l1Avg + l2Avg + l3Avg + l4Avg); // 加起来拼成一套完整的听力
+      const lScore = lTotalAvg > 0 ? window.getScore(lTotalAvg) : '-';
+
+      // 把估算出来的综合分数显示在页面上
+      document.getElementById('stat-r-score').innerText = rScore;
+      document.getElementById('stat-l-score').innerText = lScore;
+
+      // ==========================================
+      // 4. 计算“巅峰等效分”（把各Part历史发挥最好的一次拼起来）
+      // ==========================================
+      const r1Max = stats.reading.parts[1].length ? Math.max(...stats.reading.parts[1]) : 0;
+      const r2Max = stats.reading.parts[2].length ? Math.max(...stats.reading.parts[2]) : 0;
+      const r3Max = stats.reading.parts[3].length ? Math.max(...stats.reading.parts[3]) : 0;
+      const rScoreMax = (r1Max + r2Max + r3Max) > 0 ? window.getScore(r1Max + r2Max + r3Max) : '';
+
+      const l1Max = stats.listening.parts[1].length ? Math.max(...stats.listening.parts[1]) : 0;
+      const l2Max = stats.listening.parts[2].length ? Math.max(...stats.listening.parts[2]) : 0;
+      const l3Max = stats.listening.parts[3].length ? Math.max(...stats.listening.parts[3]) : 0;
+      const l4Max = stats.listening.parts[4].length ? Math.max(...stats.listening.parts[4]) : 0;
+      const lScoreMax = (l1Max + l2Max + l3Max + l4Max) > 0 ? window.getScore(l1Max + l2Max + l3Max + l4Max) : '';
+
+      document.getElementById('stat-r-score-max').innerText = rScoreMax;
+      document.getElementById('stat-l-score-max').innerText = lScoreMax;
+
+      /// ==========================================
+      // 5. 【核心大脑】近期状态巡航与智能波动预警系统
+      // ==========================================
+      window.analyzeStatusFluctuations = function(histPAccR, histPAccL, histTAccR, histTAccL) {
+          const reviewSection = document.getElementById('analysis-section');
+          if (!document.getElementById('view-input').classList.contains('hidden-tab')) {
+              reviewSection.classList.add('hidden-tab'); 
+              return;
+          }
+
+          const recPract = [...window.practiceData].reverse(); 
+          const recTest = [...window.fullTestData].reverse();  
+
+          const r5P = recPract.filter(d => d.subject === 'reading').slice(0, 5).map(d => (d.correct / d.total) * 100);
+          const l5P = recPract.filter(d => d.subject === 'listening').slice(0, 5).map(d => (d.correct / d.total) * 100);
+          const r2T = recTest.slice(0, 2).map(d => (d.totalR / 40) * 100);
+          const l2T = recTest.slice(0, 2).map(d => (d.totalL / 40) * 100);
+
+          if (r5P.length < 1 && l5P.length < 1 && r2T.length < 1 && l2T.length < 1) {
+              reviewSection.classList.add('hidden-tab');
+              return; 
+          }
+          reviewSection.classList.remove('hidden-tab'); 
+
+          const updateUI = (prefix, recentArr, histAcc) => {
+              const diffEl = document.getElementById(`status-${prefix}-diff`);
+              const arrowEl = document.getElementById(`status-${prefix}-arrow`);
+              const pctEl = document.getElementById(`status-${prefix}-pct`); 
+              
+              if (recentArr.length > 0 && histAcc > 0) {
+                  const recentAvg = recentArr.reduce((a, b) => a + b, 0) / recentArr.length;
+                  const diff = recentAvg - histAcc;
+                  diffEl.innerText = Math.round(recentAvg); 
+                  diffEl.className = "text-3xl font-extrabold tracking-tighter leading-none text-slate-700";
+                  if (pctEl) pctEl.className = "text-[12px] font-bold text-slate-700 ml-0.5 mb-1 block"; 
+                  
+                  if (diff > 0.5) { 
+                      arrowEl.innerText = '↑';
+                      arrowEl.className = "text-xl font-black text-[green] mr-1 mb-0.5 block"; 
+                  } else if (diff < -0.5) { 
+                      arrowEl.innerText = '↓';
+                      arrowEl.className = "text-xl font-black text-[red] mr-1 mb-0.5 block"; 
+                  } else { 
+                      arrowEl.innerText = '';
+                      arrowEl.className = "hidden";
+                  }
+              } else {
+                  diffEl.innerText = '-';
+                  if(arrowEl) arrowEl.className = "hidden";
+                  if(pctEl) pctEl.className = "hidden";
+              }
+          };
+
+          updateUI('p-r', r5P, histPAccR);
+          updateUI('p-l', l5P, histPAccL);
+          updateUI('t-r', r2T, histTAccR);
+          updateUI('t-l', l2T, histTAccL);
+
+          // --- 滚动预警轨道生成 ---
+          const warningContainer = document.getElementById('warning-container');
+          warningContainer.innerHTML = ''; 
+          warningContainer.className = "overflow-y-auto pr-1 h-[160px] mt-2 rounded-xl custom-scrollbar"; 
+
+          const getPartStats = (subject, partNum, maxScore, testKey) => {
+              const practs = window.practiceData.filter(d => d.subject === subject && String(d.part) === String(partNum));
+              const tests = window.fullTestData.map(d => ({ correct: d[testKey], total: maxScore }));
+              const allItems = [...practs, ...tests];
+              if (allItems.length === 0) return null;
+              
+              const histRate = (allItems.reduce((a, b) => a + b.correct, 0) / (allItems.length * maxScore)) * 100;
+              const recentPracts = [...practs].reverse().slice(0, 5);
+              const recentTests = [...window.fullTestData].reverse().slice(0, 2).map(d => ({ correct: d[testKey], total: maxScore }));
+              const recentItems = [...recentPracts, ...recentTests];
+              
+              if (recentItems.length === 0) return null;
+              const recRate = (recentItems.reduce((a, b) => a + b.correct, 0) / (recentItems.length * maxScore)) * 100;
+              
+              return {
+                  name: `${subject === 'reading' ? '阅读' : '听力'} Part ${partNum}`,
+                  diff: recRate - histRate,
+                  recRate: recRate
+              };
+          };
+
+          const partsData = [
+              getPartStats('reading', '1', 13, 'r1'),
+              getPartStats('reading', '2', 13, 'r2'),
+              getPartStats('reading', '3', 14, 'r3'),
+              getPartStats('listening', '1', 10, 'l1'),
+              getPartStats('listening', '2', 10, 'l2'),
+              getPartStats('listening', '3', 10, 'l3'),
+              getPartStats('listening', '4', 10, 'l4')
+          ].filter(p => p !== null);
+
+          partsData.sort((a, b) => a.diff - b.diff);
+
+          const track = document.createElement('div');
+          if (partsData.length === 0) {
+             // 去掉 absolute 和 inset-0，让它正常居中
+             track.className = 'w-full h-full flex items-center justify-center min-h-[140px]'; 
+             track.innerHTML = `<div class="flex items-center text-slate-400 text-sm bg-slate-50 px-4 py-3 rounded-xl"><i data-lucide="check-circle" class="w-4 h-4 mr-2 text-green-500"></i> 正在努力攒数据...</div>`;
+         } else {
+              track.className = 'warning-track w-full';
+              partsData.forEach(p => {
+                  let bgColor, borderColor, textColor, iconColor, iconName, trendText;
+                  if (p.diff < -2) { 
+                      bgColor = 'bg-red-50/90'; borderColor = 'border-red-200'; textColor = 'text-red-700'; iconColor = 'text-red-500'; iconName = 'alert-circle'; trendText = '需重点复盘';
+                  } else if (p.diff > 2) { 
+                      bgColor = 'bg-[#f0fdf4]/90'; borderColor = 'border-[#bbf7d0]'; textColor = 'text-[#166534]'; iconColor = 'text-[#22c55e]'; iconName = 'trending-up'; trendText = '状态稳步提升';
+                  } else { 
+                      bgColor = 'bg-slate-50/90'; borderColor = 'border-slate-100'; textColor = 'text-slate-600'; iconColor = 'text-slate-400'; iconName = 'minus-circle'; trendText = '表现平稳';
+                  }
+                  const diffStr = p.diff > 0 ? '+' + p.diff.toFixed(1) : p.diff.toFixed(1);
+                  track.innerHTML += `
+                      <div class="flex items-center justify-between p-3 rounded-xl border ${bgColor} ${borderColor} shadow-[0_2px_8px_rgba(0,0,0,0.02)] mx-1">
+                          <div class="flex items-center space-x-3">
+                              <i data-lucide="${iconName}" class="w-5 h-5 ${iconColor}"></i>
+                              <div><div class="text-[13px] font-bold ${textColor}">${p.name}</div><div class="text-[10px] opacity-80 ${textColor}">${trendText}</div></div>
+                          </div>
+                          <div class="text-right">
+                              <div class="text-sm font-black ${textColor}">${diffStr}%</div>
+                              <div class="text-[10px] opacity-70 ${textColor}">近期均率: ${p.recRate.toFixed(1)}%</div>
+                          </div>
+                      </div>`;
+              });
+          }
+          warningContainer.appendChild(track);
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+      }; // 👈 这里是函数的终点，一定要检查好！
+      
+      // ==========================================
+      // 6. 激活上面的核心大脑（传入必要的历史总正确率参数）
+      // ==========================================
+      let totalTestR_Correct = 0, totalTestL_Correct = 0, testCount = window.fullTestData.length;
+      if(testCount > 0) {
+        totalTestR_Correct = window.fullTestData.reduce((sum, d) => sum + d.totalR, 0);
+        totalTestL_Correct = window.fullTestData.reduce((sum, d) => sum + d.totalL, 0);
+      }
+      const histTAccR = testCount > 0 ? (totalTestR_Correct / (testCount * 40)) * 100 : 0;
+      const histTAccL = testCount > 0 ? (totalTestL_Correct / (testCount * 40)) * 100 : 0;
+
+      if(window.analyzeStatusFluctuations) {
+          window.analyzeStatusFluctuations(
+              calcRate(r1Avg + r2Avg + r3Avg, 40), // 刷题阅读历史总准确率
+              calcRate(l1Avg + l2Avg + l3Avg + l4Avg, 40), // 刷题听力历史总准确率
+              histTAccR, // 套题阅读历史总准确率
+              histTAccL  // 套题听力历史总准确率
+          );
+      }
+
+      // ==========================================
+      // 7. 绘制刷题部分的各个 Part 柱状图
+      // ==========================================
+      const partAccData = [
+        { name: '阅读P1', rate: calcRate(r1Avg, 13), max: calcMaxRate(stats.reading.parts[1], 13) }, 
+        { name: '阅读P2', rate: calcRate(r2Avg, 13), max: calcMaxRate(stats.reading.parts[2], 13) }, 
+        { name: '阅读P3', rate: calcRate(r3Avg, 14), max: calcMaxRate(stats.reading.parts[3], 14) },
+        { name: '听力P1', rate: calcRate(l1Avg, 10), max: calcMaxRate(stats.listening.parts[1], 10) }, 
+        { name: '听力P2', rate: calcRate(l2Avg, 10), max: calcMaxRate(stats.listening.parts[2], 10) }, 
+        { name: '听力P3', rate: calcRate(l3Avg, 10), max: calcMaxRate(stats.listening.parts[3], 10) }, 
+        { name: '听力P4', rate: calcRate(l4Avg, 10), max: calcMaxRate(stats.listening.parts[4], 10) },
+      ].filter(d => d.rate > 0); // 只保留有数据的 Part
+
+      if (partAccData.length > 0) {
+        document.getElementById('chart-bar-wrapper').style.display = 'block';
+        document.getElementById('chart-bar-empty').style.display = 'none';
+        window.renderBarChart(partAccData.map(d=>d.name), partAccData.map(d=>d.rate), partAccData.map(d=>d.max));
+      } else {
+        document.getElementById('chart-bar-wrapper').style.display = 'none';
+        document.getElementById('chart-bar-empty').style.display = 'none';
+      }
+
+      // ==========================================
+      // 8. 绘制套题部分的雷达图和折线走势图
+      // ==========================================
+      if (window.fullTestData.length > 0) {
+        document.getElementById('chart-full-wrapper').classList.remove('hidden');
+        document.getElementById('chart-full-empty').classList.add('hidden');
+        
+        // 折线图要看所有数据，所以拿全量数据
+        const fullLabels = window.fullTestData.map(d => isNaN(d.cambridgeBook) ? `${d.cambridgeBook}T${d.testNum}` : `剑${d.cambridgeBook}T${d.testNum}`);
+        const rScores = window.fullTestData.map(d => d.scoreR);
+        const lScores = window.fullTestData.map(d => d.scoreL);
+        
+        // 雷达图怕太拥挤，只取最近 6 套数据
+        const recentData = window.fullTestData.slice(-6);
+        const recentLabels = recentData.map(d => isNaN(d.cambridgeBook) ? `${d.cambridgeBook}T${d.testNum}` : `剑${d.cambridgeBook}T${d.testNum}`);
+        const recentRScores = recentData.map(d => d.scoreR);
+        const recentLScores = recentData.map(d => d.scoreL);
+        
+        window.renderRadarChart(recentLabels, recentRScores, recentLScores); 
+        window.renderLineChart(fullLabels, rScores, lScores); 
+      } else {
+        document.getElementById('chart-full-wrapper').classList.add('hidden');
+        document.getElementById('chart-full-empty').classList.remove('hidden');
+      }
+    };
+
+    window.renderActivityChart = function(labels, data) {
+      if (typeof Chart === 'undefined') return;
+      const ctx = document.getElementById('chart-activity').getContext('2d');
+      if(window.chartActivityInstance) window.chartActivityInstance.destroy();
+      let gradient = ctx.createLinearGradient(0, 0, 0, 112);
+      gradient.addColorStop(0, 'rgba(143, 188, 143, 0.6)');
+      gradient.addColorStop(1, 'rgba(143, 188, 143, 0)');
+
+      window.chartActivityInstance = new Chart(ctx, {
+        type: 'line', data: { labels: labels, datasets: [{ label: '完成篇数', data: data, borderColor: '#6B8E23', borderWidth: 2, backgroundColor: gradient, fill: true, tension: 0.4, pointRadius: 0, pointHoverRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } }, scales: { x: { display: false }, y: { display: false, min: 0 } }, layout: { padding: 0 } }
+      });
+    };
+
+    window.renderBarChart = function(labels, data, maxData) {
+      if (typeof Chart === 'undefined') return;
+      const ctx = document.getElementById('chart-bar').getContext('2d');
+      if(window.chartBarInstance) window.chartBarInstance.destroy();
+      
+      // 🌟 核心调色：如果是阅读就用莫兰迪绿，听力就用莫兰迪蓝
+      const bgColors = labels.map(label => label.includes('阅读') ? '#9ACD32' : '#60A5FA');
+
+      window.chartBarInstance = new Chart(ctx, {
+        type: 'bar', 
+        data: { 
+          labels: labels, 
+          datasets: [{ 
+            label: '准确率(%)', 
+            data: data, 
+            backgroundColor: bgColors, // 动态颜色
+            borderRadius: { topLeft: 4, topRight: 4 }, 
+            barThickness: 30 
+          }] 
+        },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { display: false },
+            // 🌟 巅峰悬浮提示框定制
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const avg = context.raw;
+                  const max = maxData[context.dataIndex]; // 取出对应的最高分
+                  return [
+                    `平均准确率: ${avg}%`,
+                    `历史最高: ${max}% ✨`
+                  ];
+                }
+              }
+            }
+          }, 
+          scales: { 
+            x: { grid: { display: false }, ticks: { color: '#6B8E23' }, border: {display: false} }, 
+            y: { grid: { color: '#f1f5f9', drawBorder: false }, ticks: { color: '#6B8E23' }, max: 100, border: {display: false} } 
+          } 
+        }
+      });
+    };
+
+    window.renderRadarChart = function(labels, rData, lData) {
+      if (typeof Chart === 'undefined') return;
+      const ctx = document.getElementById('chart-radar').getContext('2d');
+      if(window.chartRadarInstance) window.chartRadarInstance.destroy();
+      window.chartRadarInstance = new Chart(ctx, {
+        type: 'radar', 
+        data: { labels: labels, datasets: [ { label: '阅读', data: rData, borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.3)', pointBackgroundColor: '#6366f1' }, { label: '听力', data: lData, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.3)', pointBackgroundColor: '#38bdf8' } ] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 4, max: 9, ticks: { display: false }, grid: { color: '#e0e7ff' }, angleLines: { color: '#e0e7ff' } } }, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, boxHeight: 6, font: { size: 11 } } } } }
+      }); 
+    };
+
+    window.renderLineChart = function(labels, rData, lData) {
+      if (typeof Chart === 'undefined') return;
+      const ctx = document.getElementById('chart-line').getContext('2d');
+      if(window.chartLineInstance) window.chartLineInstance.destroy();
+      window.chartLineInstance = new Chart(ctx, {
+        type: 'line', data: { labels: labels, datasets: [ { label: '阅读', data: rData, borderColor: '#6366f1', backgroundColor: '#6366f1', tension: 0.3, borderWidth: 2 }, { label: '听力', data: lData, borderColor: '#38bdf8', backgroundColor: '#38bdf8', tension: 0.3, borderWidth: 2 } ] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, boxHeight: 6, font: { size: 11 } } } }, scales: { x: { grid: { display: false }, ticks: { color: '#4f46e5' }, border: {display: false} }, y: { grid: { color: '#e0e7ff' }, ticks: { color: '#818cf8' }, min: 4, max: 9, border: {display: false} } } }
+      });
+    };
+
+    // --- 导出完整 JSON 备份 ---
+    window.exportBackup = function() {
+      const backup = {
+        practiceData: window.practiceData,
+        fullTestData: window.fullTestData,
+        customData: window.customData
+      };
+      // 将数据打包成可下载的 JSON 文件
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup));
+      const link = document.createElement("a");
+      link.setAttribute("href", dataStr);
+      link.setAttribute("download", `雅思复盘_完整备份_${window.todayStr}.json`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.showToast('备份文件已导出！请妥善保存在电脑或微信里哦~ 📦');
+    };
+
+    // --- 导入 JSON 备份 ---
+    window.importData = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          
+          // 校验一下是不是我们自己的备份文件
+          if (imported.practiceData && imported.fullTestData && imported.customData) {
+            window.practiceData = imported.practiceData;
+            window.fullTestData = imported.fullTestData;
+            window.customData = imported.customData;
+            
+            // 覆盖保存到本地存储
+            window.saveToLocalStorage('ielts_practiceData', window.practiceData);
+            window.saveToLocalStorage('ielts_fullTestData', window.fullTestData);
+            window.saveToLocalStorage('ielts_customData', window.customData);
+            
+            // 刷新页面上的所有数据和下拉菜单
+            window.renderHistory();
+            window.updateDashboard();
+            window.updateSourceDropdown();
+            window.updateTopicDropdown();
+            window.updateBookDropdown();
+            
+            window.showToast('太棒啦！数据完美恢复，欢迎回来继续学习！🎉');
+          } else {
+            window.showToast('哎呀，文件格式好像不对哦，请选择咱们导出的 JSON 备份文件~', 'warn');
+          }
+        } catch (err) {
+          window.showToast('读取文件失败了，确认选对文件了吗？', 'warn');
+        }
+        // 清空文件选择器，保证下次选同一个文件也能触发
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    };
+
+    window.exportData = function() {
+      let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+      csvContent += "=== 刷题模式数据 ===\n日期,来源,科目,Part,总题数,正确数,等效总分预测,用时\n";
+      const rScore = document.getElementById('stat-r-score').innerText;
+      const lScore = document.getElementById('stat-l-score').innerText;
+      window.practiceData.forEach(d => {
+        const predScore = d.subject === 'reading' ? rScore : lScore;
+        csvContent += `${d.date},${d.sourceDetail},${d.subject === 'reading' ? '阅读' : '听力'},Part${d.part},${d.total},${d.correct},${predScore},${d.time ? d.time+'分钟' : '-'}\n`;
+      });
+      csvContent += "\n=== 套题模式数据 ===\n日期,时间段,试卷,阅读P1,阅读P2,阅读P3,阅读总对,阅读分数,听力P1,听力P2,听力P3,听力P4,听力总对,听力分数\n";
+      window.fullTestData.forEach(d => {
+        csvContent += `${d.date},${d.status},剑${d.cambridgeBook}T${d.testNum},${d.r1},${d.r2},${d.r3},${d.totalR},${d.scoreR},${d.l1},${d.l2},${d.l3},${d.l4},${d.totalL},${d.scoreL}\n`;
+      });
+      const link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `雅思复盘数据_${new Date().toLocaleDateString()}.csv`);
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+
+    // --- 临时储存“重新做”的数据 ---
+    window.pendingPracticeEntry = null;
+
+    window.openRedoModal = function(entry) {
+      window.pendingPracticeEntry = entry;
+      const modal = document.getElementById('modal-redo');
+      const content = document.getElementById('modal-redo-content');
+      modal.classList.remove('hidden');
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95');
+      }, 10);
+    };
+
+    window.closeRedoModal = function() {
+      const modal = document.getElementById('modal-redo');
+      const content = document.getElementById('modal-redo-content');
+      modal.classList.add('opacity-0');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        window.pendingPracticeEntry = null;
+      }, 300);
+    };
+
+    window.confirmRedoSubmit = function() {
+      if (window.pendingPracticeEntry) {
+        window.practiceData.push(window.pendingPracticeEntry);
+        window.showToast('太棒了！二刷一定有新的收获，继续保持！🌟');
+        document.getElementById('p-correct').value = ''; 
+        document.getElementById('p-time').value = '';
+        window.renderHistory();
+        window.saveToLocalStorage('ielts_practiceData', window.practiceData);
+      }
+      window.closeRedoModal();
+    };
+
+    // --- 输入框导航与严格校验 ---
+    window.setupInputNavigation = function() {
+      const inputs = document.querySelectorAll('.nav-input');
+      
+      inputs.forEach(input => {
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === 'Tab') {
+            e.preventDefault();
+            
+            // 🌟 回车时强制校验，不通过就红色抖动且不往下走
+            const isValid = window.validateInput(this, true);
+            if (!isValid) {
+                this.focus(); // 焦点留在这里
+                return;
+            }
+
+            const nextId = this.dataset.next;
+            const nextEl = document.getElementById(nextId);
+            if (nextEl) {
+              nextEl.focus();
+              nextEl.select();
+            } else {
+              const formId = this.closest('[id^="form-"]')?.id;
+              if (formId === 'form-practice') window.handlePracticeSubmit();
+              if (formId === 'form-full') window.handleFullSubmit();
+            }
+          }
+        });
+
+        input.addEventListener('blur', function() {
+          window.validateInput(this, false);
+        });
+        
+        input.addEventListener('input', function() {
+          this.classList.remove('input-error');
+          const val = this.value.trim();
+          const num = parseInt(val);
+          if (val !== '' && !isNaN(num)) {
+          this.value = num;
+          }
+        });
+      });
+    };
+
+    // 🌟 增强版校验：处理负数、0、空白，并返回是否通过
+    window.validateInput = function(el, isSubmitOrEnter = false) {
+      const val = el.value.trim();
+      const num = parseInt(val);
+      let max = null;
+
+      
+      // 触发抖动动画的小助手
+      const triggerError = (msg) => {
+          el.classList.remove('input-error');
+          void el.offsetWidth; // 触发浏览器重绘，保证每次按回车都能重新抖动
+          el.classList.add('input-error');
+          window.showToast(msg, 'warn');
+      };
+
+      const id = el.id;
+      // 1. 阅读用时检验 (0和负数报错)
+      if (id === 'p-time') {
+        if (isSubmitOrEnter && val === '') {
+            triggerError('阅读用时不能为空哦~');
+            return false;
+        }
+        if (val !== '' && (isNaN(num) || num <= 0)) {
+            triggerError('用时必须是大于0的数字哦，请重新输入~');
+            return false;
+        }
+        return true;
+      }
+
+      // 2. 正确题数检验
+      if (id === 'p-correct') max = parseInt(document.getElementById('p-correct').dataset.max) || 40;
+      else if (['f-r1', 'f-r2'].includes(id)) max = 13;
+      else if (id === 'f-r3') max = 14;
+      else if (['f-l1', 'f-l2', 'f-l3', 'f-l4'].includes(id)) max = 10;
+      else if (id === 'e-correct') max = parseInt(document.getElementById('e-total').value);
+
+      if (max !== null) {
+        if (isSubmitOrEnter && val === '') {
+            triggerError('这里不能为空哦，填一下数字吧~');
+            return false;
+        }
+        if (val !== '' && (isNaN(num) || num < 0 || num > max)) {
+          triggerError(`这里的满分是 ${max}，而且不能是负数哦，检查一下~`);
+          return false;
+        }
+      }
+      return true;
+    };
+
+    // --- 拦截提交按钮，增加重复检测 ---
+    const originalPracticeSubmit = window.handlePracticeSubmit;
+    window.handlePracticeSubmit = function() {
+      // 防止没按回车直接点按钮的情况，做最后一道防线
+      if (window.currentSubject === 'reading' && !window.validateInput(document.getElementById('p-time'), true)) return;
+      if (!window.validateInput(document.getElementById('p-correct'), true)) return;
+
+      const source = document.getElementById('p-source').value;
+      const isCam = source === '剑雅';
+      const isJj = source === '机经';
+      
+      let activePart = '1';
+      let maxCorrect = 40;
+
+      if (isCam) {
+        activePart = document.getElementById('p-cam-section').value.replace('P', '');
+        maxCorrect = window.currentSubject === 'reading' ? window.READING_PARTS[activePart] : window.LISTENING_PARTS[activePart];
+      } else if (isJj) {
+        activePart = document.getElementById('p-jj-part').value;
+        maxCorrect = window.currentSubject === 'reading' ? window.READING_PARTS[activePart] : window.LISTENING_PARTS[activePart];
+      } else {
+        maxCorrect = 40; 
+      }
+      
+      const correctNum = parseInt(document.getElementById('p-correct').value);
+      const dateVal = document.getElementById('p-date').value;
+      const timeVal = window.currentSubject === 'reading' ? document.getElementById('p-time').value : '';
+      
+      let sourceDetail = '';
+      if (isCam) {
+        sourceDetail = `${document.getElementById('p-cam-book').value} ${document.getElementById('p-cam-test').value} ${document.getElementById('p-cam-section').value}`;
+      } else if (isJj) {
+        sourceDetail = `机经 P${activePart} (${document.getElementById('p-jj-topic').value})`;
+      } else {
+        const cDetail = document.getElementById('p-custom-detail').value.trim() || '综合测试';
+        sourceDetail = `${source} (${cDetail})`;
+      }
+
+      const entry = {
+        id: Date.now(),
+        date: dateVal,
+        subject: window.currentSubject,
+        source: source,
+        part: activePart,
+        correct: correctNum,
+        total: maxCorrect,
+        time: timeVal,
+        sourceDetail: sourceDetail
+      };
+
+      // 🌟 同一日期、来源、科目输入第二次，触发弹窗
+      const isDuplicate = window.practiceData.some(d => 
+        d.date === dateVal && 
+        d.subject === window.currentSubject && 
+        d.sourceDetail === sourceDetail
+      );
+      
+      if (isDuplicate) {
+        window.openRedoModal(entry);
+        return;
+      }
+
+      window.practiceData.push(entry);
+      window.showToast('太棒了！又完成了一次刷题记录，继续保持！🌟');
+      document.getElementById('p-correct').value = ''; 
+      document.getElementById('p-time').value = '';
+      window.renderHistory();
+      window.saveToLocalStorage('ielts_practiceData', window.practiceData);
+    };
+
+    const originalFullSubmit = window.handleFullSubmit;
+    window.handleFullSubmit = function() {
+      // 套题也做一层按钮点击拦截
+      const inputs = ['f-r1', 'f-r2', 'f-r3', 'f-l1', 'f-l2', 'f-l3', 'f-l4'];
+      for (let id of inputs) {
+         if (!window.validateInput(document.getElementById(id), true)) return;
+      }
+      originalFullSubmit(); // 继续执行原来的套题逻辑
+    };
+
+    // --- 动态时间段鼓励语 ---
+    window.updateTimeEncouragement = function() {
+      const val = document.getElementById('f-status').value;
+      const msgEl = document.getElementById('time-msg');
+      let msg = "";
+      
+      if (val === "09:00-12:00") {
+        msg = "和考场同一时间！克服犯困，提前把大脑生物钟调到最佳状态！";
+      } else if (val === "13:00-15:00") {
+        msg = "哪怕眼皮打架也要咬牙坚持，今天练的就是这股抗压的韧劲！";
+      } else if (val === "15:00-17:00") {
+        msg = "精力不错但容易飘走？深呼吸，把注意力死死拽回来，专注当下！";
+      } else if (val === "19:00-22:00") {
+        msg = "辛苦了一整天还在坚持，真的很了不起！疲惫时的每一分努力都算数！";
+      }
+      
+      // 添加一个小动画效果让切换更丝滑
+      msgEl.classList.remove('animate-fade-in');
+      void msgEl.offsetWidth; // 触发重绘
+      msgEl.innerText = msg;
+      msgEl.classList.add('animate-fade-in');
+    };
+
+    // DOM 准备好后的基础绑定
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof Chart !== 'undefined') {
+        Chart.defaults.font.family = 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+      }
+
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      document.getElementById('p-date').value = window.todayStr;
+      document.getElementById('f-date').value = window.todayStr;
+
+      // 👇 自动匹配当前时间段的魔法 (优化版：晚上6点后就切到晚间模式)
+      const currentHour = new Date().getHours();
+      const statusSelect = document.getElementById('f-status');
+      if (statusSelect) {
+        if (currentHour < 13) {
+          statusSelect.value = "09:00-12:00";
+        } else if (currentHour < 15) {
+          statusSelect.value = "13:00-15:00";
+        } else if (currentHour < 18) { // 👈 只要不到 18:00，就还是下午
+          statusSelect.value = "15:00-17:00";
+        } else { // 👈 过了 18:00，就直接跳到晚间冲刺期啦！
+          statusSelect.value = "19:00-22:00";
+        }
+        // 自动选好时间后，顺便把下面的鼓励语也刷出来
+        window.updateTimeEncouragement();
+      }
+
+      // 【👉 新增：监听全局键盘事件，按下 Esc 键关闭所有弹窗】
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          window.closeModal();          
+          window.closeEditModal();      
+          window.closeConfirmModal();
+          window.closeRedoModal();  
+        }
+      });
+
+      // 初始化导航
+      window.setupInputNavigation();
+      
+      // 初始化满分
+      window.updateMaxScore();
+
+      // 调用本地存储加载数据
+      window.loadFromLocalStorage();
+
+      // 每分钟检查一次是否跨天
+      setInterval(window.autoRefreshDate, 60000);
+
+      // 【重要】当页面从后台切换回前台，或者电脑从休眠唤醒时，立即检查日期
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === 'visible') {
+          window.autoRefreshDate();
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>
