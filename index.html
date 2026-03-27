@@ -144,6 +144,38 @@
       background: rgba(107, 142, 35, 0.6); /* 鼠标悬停深一点 */
     }
 
+    /* --- 模考折线图专属：蓝紫色水平滚动条 --- */
+    .custom-scrollbar-indigo::-webkit-scrollbar {
+      height: 6px; /* 稍微细一点，不抢风头 */
+    }
+    .custom-scrollbar-indigo::-webkit-scrollbar-track {
+      background: rgba(99, 102, 241, 0.05); /* 极浅的蓝紫底色 */
+      border-radius: 10px;
+    }
+    .custom-scrollbar-indigo::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.4); /* 靛蓝色半透明，和边框呼应 */
+      border-radius: 10px;
+    }
+    .custom-scrollbar-indigo::-webkit-scrollbar-thumb:hover {
+      background: rgba(79, 70, 229, 0.6); /* 拖动时颜色加深 */
+    }
+
+    /* --- 错题复盘专属：砖红色垂直滚动条 --- */
+    .custom-scrollbar-review::-webkit-scrollbar {
+      width: 6px; 
+    }
+    .custom-scrollbar-review::-webkit-scrollbar-track {
+      background: rgba(183, 75, 72, 0.08); /* 轨道留一点点极浅的底色，看着更柔和 */
+      border-radius: 10px;
+    }
+    .custom-scrollbar-review::-webkit-scrollbar-thumb {
+      background: #b74b48; /* ✨ 变成了完全不透明的实心砖红色！ */
+      border-radius: 10px;
+    }
+    .custom-scrollbar-review::-webkit-scrollbar-thumb:hover {
+      background: #82433d; /* ✨ 鼠标悬停时，变成你喜欢的那个深沉的红木色！ */
+    }
+
   </style>
 </head>
 <body class="min-h-screen bg-[#8FBC8F]/30 font-sans text-slate-800 pb-20 selection:bg-[#9ACD32]/40">
@@ -231,9 +263,10 @@
   <main class="max-w-5xl mx-auto px-4 py-8 relative">
     
     <div id="view-input" class="space-y-6">
-      <div class="flex p-1 bg-white/60 backdrop-blur-sm rounded-xl w-fit mx-auto mb-8 shadow-sm border border-[#8FBC8F]/50">
+      <div class="flex p-1 bg-white/60 backdrop-blur-sm rounded-xl w-fit mx-auto mb-8 shadow-sm border border-[#8FBC8F]/50 relative z-10">
         <button id="btn-mode-practice" onclick="window.switchInputMode('practice')" class="px-6 py-2 rounded-lg text-sm font-medium transition bg-[#6B8E23] text-white shadow-md">🌿 刷题模式</button>
         <button id="btn-mode-full" onclick="window.switchInputMode('full')" class="px-6 py-2 rounded-lg text-sm font-medium transition text-indigo-800 hover:bg-indigo-100">🎓 套题模式</button>
+        <button id="btn-mode-review" onclick="window.switchInputMode('review')" class="px-6 py-2 rounded-lg text-sm font-medium transition text-[#312520] hover:bg-[#ebdbcb]/60">🔍 复盘模式</button>
       </div>
 
       <div id="form-practice" class="bg-white p-6 rounded-2xl shadow-sm border border-[#8FBC8F]/60 max-w-2xl mx-auto animate-fade-in">
@@ -324,7 +357,7 @@
         <div class="grid grid-cols-3 gap-4 mb-2">
           <div>
             <label class="block text-sm text-indigo-700/70 mb-1">做题日期</label>
-            <input type="date" id="f-date" onkeydown="if(event.key === 'Enter') { event.preventDefault(); document.getElementById('f-r1').focus(); }" class="w-full p-2 border border-indigo-200 rounded-lg outline-none bg-white focus:ring-2 focus:ring-indigo-300 text-slate-900 cursor-pointer hover:border-indigo-400 transition-colors" />
+            <input type="date" id="f-date" onkeydown="if(event.key === 'Enter') { event.preventDefault(); document.getElementById('f-l1').focus(); }" class="w-full p-2 border border-indigo-200 rounded-lg outline-none bg-white focus:ring-2 focus:ring-indigo-300 text-slate-900 cursor-pointer hover:border-indigo-400 transition-colors" />
           </div>
           <div>
             <label class="block text-sm text-indigo-700/70 mb-1">试卷版本</label>
@@ -349,22 +382,22 @@
 
         <div id="time-msg" class="text-[11px] text-indigo-400 mb-4 min-h-[16px] font-medium animate-fade-in tracking-wide text-right">和考场同一时间！克服犯困，提前把大脑生物钟调到最佳状态！</div>
 
-        <div class="bg-white/60 p-4 rounded-xl mb-4 border border-indigo-100">
-          <h3 class="text-sm font-medium text-indigo-900 mb-3 flex items-center"><i data-lucide="book-open" class="w-4 h-4 mr-1 text-indigo-400"></i> 阅读部分 (共40题)</h3>
-          <div class="grid grid-cols-3 gap-4">
-            <div><label class="text-xs text-indigo-500 block mb-1">Part1 (13题)</label><input type="number" id="f-r1" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r2" /></div>
-            <div><label class="text-xs text-indigo-500 block mb-1">Part2 (13题)</label><input type="number" id="f-r2" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r3" /></div>
-            <div><label class="text-xs text-indigo-500 block mb-1">Part3 (14题)</label><input type="number" id="f-r3" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l1" /></div>
-          </div>
-        </div>
-
-        <div class="bg-white/60 p-4 rounded-xl mb-6 border border-indigo-100">
+       <div class="bg-white/60 p-4 rounded-xl mb-4 border border-indigo-100">
           <h3 class="text-sm font-medium text-indigo-900 mb-3 flex items-center"><i data-lucide="headphones" class="w-4 h-4 mr-1 text-indigo-400"></i> 听力部分 (共40题)</h3>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div><label class="text-xs text-indigo-500 block mb-1">Part1 (10题)</label><input type="number" id="f-l1" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l2" /></div>
             <div><label class="text-xs text-indigo-500 block mb-1">Part2 (10题)</label><input type="number" id="f-l2" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l3" /></div>
             <div><label class="text-xs text-indigo-500 block mb-1">Part3 (10题)</label><input type="number" id="f-l3" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l4" /></div>
-            <div><label class="text-xs text-indigo-500 block mb-1">Part4 (10题)</label><input type="number" id="f-l4" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" /></div>
+            <div><label class="text-xs text-indigo-500 block mb-1">Part4 (10题)</label><input type="number" id="f-l4" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r1" /></div>
+          </div>
+        </div>
+
+        <div class="bg-white/60 p-4 rounded-xl mb-6 border border-indigo-100">
+          <h3 class="text-sm font-medium text-indigo-900 mb-3 flex items-center"><i data-lucide="book-open" class="w-4 h-4 mr-1 text-indigo-400"></i> 阅读部分 (共40题)</h3>
+          <div class="grid grid-cols-3 gap-4">
+            <div><label class="text-xs text-indigo-500 block mb-1">Part1 (13题)</label><input type="number" id="f-r1" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r2" /></div>
+            <div><label class="text-xs text-indigo-500 block mb-1">Part2 (13题)</label><input type="number" id="f-r2" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r3" /></div>
+            <div><label class="text-xs text-indigo-500 block mb-1">Part3 (14题)</label><input type="number" id="f-r3" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" /></div>
           </div>
         </div>
         
@@ -377,12 +410,46 @@
             <i data-lucide="history" class="w-4 h-4 mr-1"></i> 最近模考记录
           </h3>
           <div id="f-history-list" class="space-y-2 max-h-40 overflow-y-auto pr-2">
-            </div>
+              </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div id="view-dashboard" class="space-y-6 animate-fade-in hidden-tab">
+        <div id="form-review" class="bg-[#e4b6b6]/30 p-6 rounded-2xl shadow-sm border border-[#e4b6b6]/40 max-w-3xl mx-auto animate-fade-in hidden">
+          <div class="flex justify-between items-center mb-6">
+             <h2 class="text-lg font-semibold flex items-center text-[#312520]">
+               <i data-lucide="check-square" class="w-5 h-5 mr-2 text-[#b74b48]"></i> 弱点定向复盘
+             </h2>
+             <div class="relative inline-flex bg-[#ebdbcb]/40 backdrop-blur-sm rounded-full p-1 shadow-inner border border-[#ebdbcb]/80 items-center">
+               
+               <div id="rev-toggle-slider" class="absolute left-1 top-1 bottom-1 w-[70px] bg-[#b74b48] border-2 border-[#82433d] rounded-full transition-transform duration-300 shadow-sm box-border"></div>
+               
+               <button onclick="window.switchRevSubject('reading')" id="btn-rev-read" class="relative z-10 w-[70px] py-1 text-sm font-medium text-[#fcf8f5] transition-colors outline-none focus:outline-none">📖 阅读</button>
+               
+               <button onclick="window.switchRevSubject('listening')" id="btn-rev-listen" class="relative z-10 w-[70px] py-1 text-sm font-medium text-[#1a1a1a] hover:text-black transition-colors outline-none focus:outline-none">🎧 听力</button>
+             </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white/80 p-4 rounded-xl border border-[#ebdbcb] flex flex-col h-[400px]">
+               <h3 class="text-sm font-medium text-[#312520] mb-3 flex items-center justify-between border-b border-[#ebdbcb]/60 pb-2">
+                  <span>🌿 刷题错题</span>
+                  <span class="text-[10px] bg-[#b74b48] text-white font-medium px-2 py-0.5 rounded-full shadow-sm" id="rev-p-count">待复盘: 0</span>
+               </h3>
+               <div id="review-list-practice" class="flex-1 overflow-y-auto custom-scrollbar-review pr-1 space-y-2">
+                  </div>
+            </div>
+            <div class="bg-white/80 p-4 rounded-xl border border-[#ebdbcb] flex flex-col h-[400px]">
+               <h3 class="text-sm font-medium text-[#312520] mb-3 flex items-center justify-between border-b border-[#ebdbcb]/60 pb-2">
+                  <span>🎓 套题错题</span>
+                  <span class="text-[10px] bg-[#b74b48] text-white font-medium px-2 py-0.5 rounded-full shadow-sm" id="rev-f-count">待复盘: 0</span>
+               </h3>
+               <div id="review-list-full" class="flex-1 overflow-y-auto custom-scrollbar-review pr-1 space-y-2">
+                  </div>
+            </div>
+          </div>
+        </div>
+
+      </div> <div id="view-dashboard" class="space-y-6 animate-fade-in hidden-tab">
       
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#8FBC8F]/50">
         <h2 class="text-lg font-semibold mb-6 flex items-center text-[#808000]"><i data-lucide="leaf" class="w-5 h-5 mr-2 text-[#9ACD32]"></i> 学习热力追踪</h2>
@@ -396,8 +463,10 @@
             </div>
             <span class="text-[10px] text-slate-400 mt-3">注：套题按 阅3/听4 计入</span>
           </div>
+
           <div class="bg-[#8FBC8F]/10 p-6 rounded-xl border border-[#8FBC8F]/30 flex flex-col md:col-span-2 relative overflow-hidden">
             <div class="flex justify-between items-start w-full z-10 mb-2">
+              
               <div>
                 <span class="text-[#6B8E23] text-sm font-medium mb-1 block">累计完成总数 (篇)</span>
                 <div class="flex items-center space-x-3">
@@ -408,12 +477,26 @@
                   </div>
                 </div>
               </div>
+              
+              <div class="text-right">
+                <span class="text-[#6B8E23] text-sm font-medium mb-1 flex items-center justify-end"><i data-lucide="check-square" class="w-4 h-4 mr-1"></i>累计复盘总数 (篇)</span>
+                <div class="flex items-center justify-end space-x-3">
+                  <div class="flex flex-col space-y-1 font-semibold tracking-wide text-right">
+                    <span class="text-green-600 bg-green-100/60 px-1.5 py-0.5 rounded text-[11px] flex items-center justify-end"><i data-lucide="book-open" class="w-3 h-3 mr-1"></i> <span id="stat-review-r" class="ml-1">0</span></span>
+                    <span class="text-blue-500 bg-blue-100/60 px-1.5 py-0.5 rounded text-[11px] flex items-center justify-end"><i data-lucide="headphones" class="w-3 h-3 mr-1"></i> <span id="stat-review-l" class="ml-1">0</span></span>
+                  </div>
+                  <span id="stat-review-total" class="text-4xl font-bold text-slate-900">0</span> 
+                </div>
+              </div>
+              
             </div>
+            
             <div id="chart-activity-container" class="h-24 w-full relative z-0 mt-0 -mb-4">
               <canvas id="chart-activity"></canvas>
             </div>
             <div id="chart-activity-empty" class="text-center text-slate-400 py-6 text-sm w-full">开始录入数据后，这里会画出你的努力曲线哦~</div>
           </div>
+
         </div>
       </div>
 
@@ -515,19 +598,50 @@
               <canvas id="chart-radar"></canvas>
             </div>
           </div>
-          <div class="h-72 bg-indigo-50/30 rounded-xl p-4 border border-indigo-50 relative">
-              <h3 class="text-sm font-medium text-indigo-800 mb-2 text-center">模考分数走势</h3>
-              <div class="relative w-full h-[calc(100%-24px)]">
-                <canvas id="chart-line"></canvas>
+          <div class="h-72 bg-indigo-50/30 rounded-xl p-4 border border-indigo-50 relative flex flex-col">
+              <h3 class="text-sm font-medium text-indigo-800 mb-2 text-center flex-shrink-0">模考分数走势</h3>
+              <div id="chart-line-scroll-container" class="relative w-full flex-1 overflow-x-auto custom-scrollbar-indigo">
+                <div id="chart-line-inner" class="relative h-full" style="min-width: 100%;">
+                  <canvas id="chart-line"></canvas>
+                </div>
               </div>
           </div>
         </div>
         <div id="chart-full-empty" class="text-center text-slate-400 py-10 text-sm">暂无套题模考数据，平时也要多按考场时间训练哦！</div>
       </div>
 
-    </div>
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-[#8FBC8F]/50">
+        <h2 class="text-lg font-semibold mb-6 flex items-center text-[#808000]"><i data-lucide="bar-chart-2" class="w-5 h-5 mr-2 text-[#9ACD32]"></i> 套题模式 · 平均表现估算</h2>
+        <div class="grid grid-cols-2 gap-6 mb-8">
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 flex flex-col items-center justify-center">
+            <span class="text-[#6B8E23] text-sm font-medium mb-2">套题阅读平均分</span>
+            <div class="flex items-start">
+              <span id="stat-full-r-score" class="text-4xl font-bold text-slate-900">-</span>
+              <span id="stat-full-r-score-max" class="text-[11px] text-slate-400 font-medium ml-1 mt-1 tracking-tighter" title="历史最高阅读得分"></span>
+            </div>
+            <span class="text-xs text-slate-400 mt-2">基于套题阅读总得分求均值</span>
+          </div>
+          
+          <div class="bg-slate-50 p-6 rounded-xl border border-slate-100 flex flex-col items-center justify-center">
+            <span class="text-[#6B8E23] text-sm font-medium mb-2">套题听力平均分</span>
+            <div class="flex items-start">
+              <span id="stat-full-l-score" class="text-4xl font-bold text-slate-900">-</span>
+              <span id="stat-full-l-score-max" class="text-[11px] text-slate-400 font-medium ml-1 mt-1 tracking-tighter" title="历史最高听力得分"></span>
+            </div>
+            <span class="text-xs text-slate-400 mt-2">基于套题听力总得分求均值</span>
+          </div>
+        </div>
 
-  </main>
+        <div id="chart-full-bar-wrapper">
+          <h3 class="text-sm font-medium text-[#808000] mb-4 text-center">套题各 Part 平均正确率对比 (%)</h3>
+          <div class="h-64 relative">
+            <canvas id="chart-full-bar"></canvas>
+          </div>
+        </div>
+        <div id="chart-full-bar-empty" class="text-center text-slate-400 py-10 text-sm">暂无套题模考数据，快去完成一套完整的测试吧~</div>
+      </div>
+
+    </div> </main>
 
   <div id="modal-custom" onclick="if(event.target === this) window.closeModal()" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0 duration-300">
     <div class="bg-white rounded-2xl p-6 w-80 shadow-xl border border-[#8FBC8F]/50 transform transition-transform scale-95 duration-300" id="modal-custom-content">
@@ -1433,6 +1547,7 @@
     window.chartBarInstance = null;
     window.chartRadarInstance = null;
     window.chartLineInstance = null;
+    window.chartFullBarInstance = null;
 
     window.updateDashboard = function() {
       // ==========================================
@@ -1440,6 +1555,7 @@
       // ==========================================
       let todayCount = 0, todayR = 0, todayL = 0; // 存放今天的数据
       let totalCount = 0, totalR = 0, totalL = 0; // 存放历史所有累计的数据
+      let revTotal = 0, revR = 0, revL = 0; // 🌟 新增复盘计数器
       const dailyMap = {}; // 用来记录每一天做了多少篇，给画折线图用
 
       // 这是一个通用小助手：负责把每一篇练习按日期和科目加进统计里
@@ -1462,11 +1578,16 @@
         const isR = d.subject === 'reading' ? 1 : 0;
         const isL = d.subject === 'listening' ? 1 : 0;
         addCount(d.date, 1, isR, isL);
+        // 🌟 统计复盘
+        if(d.isReviewed) { revTotal++; isR ? revR++ : revL++; }
       });
       
       // 遍历套题记录：每套题包含 3篇阅读 + 4篇听力，一共算 7 篇
       window.fullTestData.forEach(d => {
         addCount(d.date, 7, 3, 4); 
+        // 🌟 统计套题复盘 (阅算3篇，听算4篇)
+        if(d.isReviewedR) { revTotal+=3; revR+=3; }
+        if(d.isReviewedL) { revTotal+=4; revL+=4; }
       });
 
       // 把算好的总数更新到页面最上面的数字格子里
@@ -1476,6 +1597,14 @@
       document.getElementById('stat-total').innerText = totalCount;
       document.getElementById('stat-total-r').innerText = totalR;
       document.getElementById('stat-total-l').innerText = totalL;
+
+      // 🌟 写入复盘模块的数字
+      const elRevT = document.getElementById('stat-review-total');
+      if (elRevT) {
+          elRevT.innerText = revTotal;
+          document.getElementById('stat-review-r').innerText = revR;
+          document.getElementById('stat-review-l').innerText = revL;
+      }
 
       // ==========================================
       // 2. 绘制“学习热力追踪”那条绿色的努力折线图
@@ -1719,24 +1848,107 @@
         document.getElementById('chart-full-wrapper').classList.remove('hidden');
         document.getElementById('chart-full-empty').classList.add('hidden');
         
-        // 折线图要看所有数据，所以拿全量数据
+        // --- 1. 折线走势图（保持刚才修好的逻辑不变） ---
         const fullLabels = window.fullTestData.map(d => isNaN(d.cambridgeBook) ? `${d.cambridgeBook}T${d.testNum}` : `剑${d.cambridgeBook}T${d.testNum}`);
         const rScores = window.fullTestData.map(d => d.scoreR);
         const lScores = window.fullTestData.map(d => d.scoreL);
-        
-        // 雷达图怕太拥挤，只取最近 6 套数据
-        const recentData = window.fullTestData.slice(-6);
-        const recentLabels = recentData.map(d => isNaN(d.cambridgeBook) ? `${d.cambridgeBook}T${d.testNum}` : `剑${d.cambridgeBook}T${d.testNum}`);
-        const recentRScores = recentData.map(d => d.scoreR);
-        const recentLScores = recentData.map(d => d.scoreL);
-        
-        window.renderRadarChart(recentLabels, recentRScores, recentLScores); 
         window.renderLineChart(fullLabels, rScores, lScores); 
+
+        // --- 2. 雷达图大改造：各 Part 均衡度分析仪 ---
+        const latestTest = window.fullTestData[window.fullTestData.length - 1]; // 取出最新一次套题
+        
+        // 计算最新一次各 Part 的正确率百分比 (四舍五入)
+        const latestRates = [
+            (latestTest.r1 / 13) * 100, (latestTest.r2 / 13) * 100, (latestTest.r3 / 14) * 100,
+            (latestTest.l1 / 10) * 100, (latestTest.l2 / 10) * 100, (latestTest.l3 / 10) * 100, (latestTest.l4 / 10) * 100
+        ].map(n => Math.round(n));
+
+        // 计算历史所有套题各 Part 的平均正确率百分比
+        let sumR1=0, sumR2=0, sumR3=0, sumL1=0, sumL2=0, sumL3=0, sumL4=0;
+        window.fullTestData.forEach(t => {
+            sumR1+=t.r1; sumR2+=t.r2; sumR3+=t.r3; sumL1+=t.l1; sumL2+=t.l2; sumL3+=t.l3; sumL4+=t.l4;
+        });
+        const len = window.fullTestData.length;
+        const avgRates = [
+            (sumR1 / (len * 13)) * 100, (sumR2 / (len * 13)) * 100, (sumR3 / (len * 14)) * 100,
+            (sumL1 / (len * 10)) * 100, (sumL2 / (len * 10)) * 100, (sumL3 / (len * 10)) * 100, (sumL4 / (len * 10)) * 100
+        ].map(n => Math.round(n));
+
+        const radarLabels = ['阅读P1', '阅读P2', '阅读P3', '听力P1', '听力P2', '听力P3', '听力P4'];
+        
+        // 召唤全新的雷达图渲染函数
+        window.renderRadarChart(radarLabels, latestRates, avgRates); 
       } else {
         document.getElementById('chart-full-wrapper').classList.add('hidden');
         document.getElementById('chart-full-empty').classList.remove('hidden');
       }
-    };
+
+      // ==========================================
+      // 9. 绘制套题模式 · 平均表现估算 (柱状图)
+      // ==========================================
+      if (window.fullTestData.length > 0) {
+        let sumScoreR = 0, sumScoreL = 0;
+        let maxScoreR = 0, maxScoreL = 0;
+        let maxR1=0, maxR2=0, maxR3=0, maxL1=0, maxL2=0, maxL3=0, maxL4=0;
+        let sumR1=0, sumR2=0, sumR3=0, sumL1=0, sumL2=0, sumL3=0, sumL4=0;
+        
+        window.fullTestData.forEach(t => {
+            sumScoreR += parseFloat(t.scoreR);
+            sumScoreL += parseFloat(t.scoreL);
+            if(parseFloat(t.scoreR) > maxScoreR) maxScoreR = parseFloat(t.scoreR);
+            if(parseFloat(t.scoreL) > maxScoreL) maxScoreL = parseFloat(t.scoreL);
+
+            sumR1+=t.r1; sumR2+=t.r2; sumR3+=t.r3; 
+            sumL1+=t.l1; sumL2+=t.l2; sumL3+=t.l3; sumL4+=t.l4;
+            
+            // 计算各Part历史最高正确题数
+            if(t.r1 > maxR1) maxR1 = t.r1;
+            if(t.r2 > maxR2) maxR2 = t.r2;
+            if(t.r3 > maxR3) maxR3 = t.r3;
+            if(t.l1 > maxL1) maxL1 = t.l1;
+            if(t.l2 > maxL2) maxL2 = t.l2;
+            if(t.l3 > maxL3) maxL3 = t.l3;
+            if(t.l4 > maxL4) maxL4 = t.l4;
+        });
+
+        const len = window.fullTestData.length;
+        document.getElementById('stat-full-r-score').innerText = (sumScoreR / len).toFixed(1);
+        document.getElementById('stat-full-r-score-max').innerText = maxScoreR;
+        document.getElementById('stat-full-l-score').innerText = (sumScoreL / len).toFixed(1);
+        document.getElementById('stat-full-l-score-max').innerText = maxScoreL;
+
+        const calcP = (sum, total) => parseFloat(((sum / total) * 100).toFixed(1));
+        const calcMaxP = (maxCorrect, fullScore) => parseFloat(((maxCorrect / fullScore) * 100).toFixed(1));
+
+        const fullPartAccData = [
+            { name: '阅P1', rate: calcP(sumR1, len*13), max: calcMaxP(maxR1, 13) },
+            { name: '阅P2', rate: calcP(sumR2, len*13), max: calcMaxP(maxR2, 13) },
+            { name: '阅P3', rate: calcP(sumR3, len*14), max: calcMaxP(maxR3, 14) },
+            { name: '听P1', rate: calcP(sumL1, len*10), max: calcMaxP(maxL1, 10) },
+            { name: '听P2', rate: calcP(sumL2, len*10), max: calcMaxP(maxL2, 10) },
+            { name: '听P3', rate: calcP(sumL3, len*10), max: calcMaxP(maxL3, 10) },
+            { name: '听P4', rate: calcP(sumL4, len*10), max: calcMaxP(maxL4, 10) }
+        ];
+
+        document.getElementById('chart-full-bar-wrapper').style.display = 'block';
+        document.getElementById('chart-full-bar-empty').style.display = 'none';
+        window.renderFullBarChart(fullPartAccData.map(d=>d.name), fullPartAccData.map(d=>d.rate), fullPartAccData.map(d=>d.max));
+
+      } else {
+        const elR = document.getElementById('stat-full-r-score');
+        if (elR) elR.innerText = '-';
+        const elL = document.getElementById('stat-full-l-score');
+        if (elL) elL.innerText = '-';
+        const elRMax = document.getElementById('stat-full-r-score-max');
+        if (elRMax) elRMax.innerText = '';
+        const elLMax = document.getElementById('stat-full-l-score-max');
+        if (elLMax) elLMax.innerText = '';
+        const wrapper = document.getElementById('chart-full-bar-wrapper');
+        if (wrapper) wrapper.style.display = 'none';
+        const empty = document.getElementById('chart-full-bar-empty');
+        if (empty) empty.style.display = 'block';
+      }
+    }; 
 
     window.renderActivityChart = function(labels, data) {
       if (typeof Chart === 'undefined') return;
@@ -1799,25 +2011,152 @@
       });
     };
 
-    window.renderRadarChart = function(labels, rData, lData) {
+    window.renderFullBarChart = function(labels, data, maxData) {
       if (typeof Chart === 'undefined') return;
+      const ctx = document.getElementById('chart-full-bar').getContext('2d');
+      if(window.chartFullBarInstance) window.chartFullBarInstance.destroy();
+      
+      // 🌟 核心调色：套题模式也统一！阅读用莫兰迪绿，听力用莫兰迪蓝
+      const bgColors = labels.map(label => label.includes('阅') ? '#9ACD32' : '#60A5FA');
+
+      window.chartFullBarInstance = new Chart(ctx, {
+        type: 'bar', 
+        data: { 
+          labels: labels, 
+          datasets: [{ 
+            label: '准确率(%)', 
+            data: data, 
+            backgroundColor: bgColors, 
+            borderRadius: { topLeft: 4, topRight: 4 }, 
+            barThickness: 30 
+          }] 
+        },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const avg = context.raw;
+                  const max = maxData[context.dataIndex]; 
+                  return [
+                    `平均准确率: ${avg}%`,
+                    `历史最高: ${max}% ✨`
+                  ];
+                }
+              }
+            }
+          }, 
+          scales: { 
+            x: { grid: { display: false }, ticks: { color: '#6B8E23' }, border: {display: false} }, 
+            y: { grid: { color: '#f1f5f9', drawBorder: false }, ticks: { color: '#6B8E23' }, max: 100, border: {display: false} } 
+          } 
+        }
+      });
+    };
+
+    window.renderRadarChart = function(labels, latestData, avgData) {
+      if (typeof Chart === 'undefined') return;
+      
+      // 动态修改图表上方的标题，让它名副其实
+      const titleEl = document.querySelector('#chart-radar').closest('.relative').querySelector('h3');
+      if (titleEl) titleEl.innerText = "最新模考 vs 历史均值 (%)";
+      
       const ctx = document.getElementById('chart-radar').getContext('2d');
       if(window.chartRadarInstance) window.chartRadarInstance.destroy();
+      
       window.chartRadarInstance = new Chart(ctx, {
         type: 'radar', 
-        data: { labels: labels, datasets: [ { label: '阅读', data: rData, borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.3)', pointBackgroundColor: '#6366f1' }, { label: '听力', data: lData, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.3)', pointBackgroundColor: '#38bdf8' } ] },
-        options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 4, max: 9, ticks: { display: false }, grid: { color: '#e0e7ff' }, angleLines: { color: '#e0e7ff' } } }, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, boxHeight: 6, font: { size: 11 } } } } }
+        data: { 
+          labels: labels, 
+          datasets: [ 
+            { 
+              label: '最新模考', 
+              data: latestData, 
+              borderColor: '#6366f1', // 靛蓝色
+              backgroundColor: 'rgba(99, 102, 241, 0.4)', // 靛蓝半透明填充
+              pointBackgroundColor: '#6366f1',
+              borderWidth: 2
+            }, 
+            { 
+              label: '历史均值', 
+              data: avgData, 
+              borderColor: '#f472b6', // ✨ 1. 边框换成粉色
+              backgroundColor: 'rgba(244, 114, 182, 0.1)', // ✨ 2. 内部填充换成极浅的粉色
+              pointBackgroundColor: '#f472b6',
+              borderWidth: 2
+            } 
+          ] 
+        },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          scales: { 
+            r: { 
+              min: 0, 
+              max: 100, 
+              ticks: { display: false, stepSize: 20 }, // 隐藏圈圈上的具体数字，保持清爽
+              grid: { color: '#e0e7ff' }, 
+              angleLines: { color: '#e0e7ff' },
+              pointLabels: { font: { size: 10 }, color: '#64748b' } // 外围标签字体颜色
+            } 
+          }, 
+          plugins: { 
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, boxHeight: 6, font: { size: 11 } } },
+            tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': ' + context.raw + '%'; } } }
+          } 
+        }
       }); 
     };
 
     window.renderLineChart = function(labels, rData, lData) {
       if (typeof Chart === 'undefined') return;
+
+      const innerContainer = document.getElementById('chart-line-inner');
+      const scrollContainer = document.getElementById('chart-line-scroll-container');
+      
+      // 🌟 核心防崩溃保护：如果找不到 HTML 里的盒子，就安全退出，保护整个网页不白屏！
+      if (!innerContainer || !scrollContainer) {
+         console.warn("走势图容器还没准备好哦~");
+         return; 
+      }
+
+      // 给一个保底宽度，防止计算宽度为 0 导致图表报错
+      const baseWidth = scrollContainer.clientWidth || 500;
+      const requiredWidth = Math.max(baseWidth, labels.length * 60); 
+      innerContainer.style.width = requiredWidth + 'px';
+
       const ctx = document.getElementById('chart-line').getContext('2d');
       if(window.chartLineInstance) window.chartLineInstance.destroy();
+      
       window.chartLineInstance = new Chart(ctx, {
-        type: 'line', data: { labels: labels, datasets: [ { label: '阅读', data: rData, borderColor: '#6366f1', backgroundColor: '#6366f1', tension: 0.3, borderWidth: 2 }, { label: '听力', data: lData, borderColor: '#38bdf8', backgroundColor: '#38bdf8', tension: 0.3, borderWidth: 2 } ] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, boxHeight: 6, font: { size: 11 } } } }, scales: { x: { grid: { display: false }, ticks: { color: '#4f46e5' }, border: {display: false} }, y: { grid: { color: '#e0e7ff' }, ticks: { color: '#818cf8' }, min: 4, max: 9, border: {display: false} } } }
+        type: 'line', 
+        data: { 
+          labels: labels, 
+          datasets: [ 
+            { label: '阅读', data: rData, borderColor: '#6366f1', backgroundColor: '#6366f1', tension: 0.3, borderWidth: 2 }, 
+            { label: '听力', data: lData, borderColor: '#38bdf8', backgroundColor: '#38bdf8', tension: 0.3, borderWidth: 2 } 
+          ] 
+        },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, boxHeight: 6, font: { size: 11 } } } 
+          }, 
+          scales: { 
+            x: { grid: { display: false }, ticks: { color: '#4f46e5' }, border: {display: false} }, 
+            y: { grid: { color: '#e0e7ff' }, ticks: { color: '#818cf8' }, min: 4, max: 9, border: {display: false} } 
+          } 
+        }
       });
+
+      // 自动滚动到最右侧查看最新数据
+      setTimeout(() => {
+        scrollContainer.scrollLeft = scrollContainer.scrollWidth;
+      }, 50);
     };
 
     // --- 导出完整 JSON 备份 ---
@@ -1881,17 +2220,24 @@
 
     window.exportData = function() {
       let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-      csvContent += "=== 刷题模式数据 ===\n日期,来源,科目,Part,总题数,正确数,等效总分预测,用时\n";
+      
+      // 👇 把表头补回来，加上“复盘情况”
+      csvContent += "=== 刷题模式数据 ===\n日期,来源,科目,Part,总题数,正确数,等效总分预测,用时,复盘情况\n";
+      
       const rScore = document.getElementById('stat-r-score').innerText;
       const lScore = document.getElementById('stat-l-score').innerText;
+      
       window.practiceData.forEach(d => {
         const predScore = d.subject === 'reading' ? rScore : lScore;
-        csvContent += `${d.date},${d.sourceDetail},${d.subject === 'reading' ? '阅读' : '听力'},Part${d.part},${d.total},${d.correct},${predScore},${d.time ? d.time+'分钟' : '-'}\n`;
+        csvContent += `${d.date},${d.sourceDetail},${d.subject === 'reading' ? '阅读' : '听力'},Part${d.part},${d.total},${d.correct},${predScore},${d.time ? d.time+'分钟' : '-'},${d.isReviewed ? '已复盘' : '未复盘'}\n`;
       });
-      csvContent += "\n=== 套题模式数据 ===\n日期,时间段,试卷,阅读P1,阅读P2,阅读P3,阅读总对,阅读分数,听力P1,听力P2,听力P3,听力P4,听力总对,听力分数\n";
+      
+      csvContent += "\n=== 套题模式数据 ===\n日期,时间段,试卷,阅读P1,阅读P2,阅读P3,阅读总对,阅读分数,阅读复盘,听力P1,听力P2,听力P3,听力P4,听力总对,听力分数,听力复盘\n";
+
       window.fullTestData.forEach(d => {
-        csvContent += `${d.date},${d.status},剑${d.cambridgeBook}T${d.testNum},${d.r1},${d.r2},${d.r3},${d.totalR},${d.scoreR},${d.l1},${d.l2},${d.l3},${d.l4},${d.totalL},${d.scoreL}\n`;
+        csvContent += `${d.date},${d.status},剑${d.cambridgeBook}T${d.testNum},${d.r1},${d.r2},${d.r3},${d.totalR},${d.scoreR},${d.isReviewedR ? '已复盘' : '未复盘'},${d.l1},${d.l2},${d.l3},${d.l4},${d.totalL},${d.scoreL},${d.isReviewedL ? '已复盘' : '未复盘'}\n`;
       });
+      
       const link = document.createElement("a");
       link.setAttribute("href", encodeURI(csvContent));
       link.setAttribute("download", `雅思复盘数据_${new Date().toLocaleDateString()}.csv`);
@@ -2130,6 +2476,127 @@
       void msgEl.offsetWidth; // 触发重绘
       msgEl.innerText = msg;
       msgEl.classList.add('animate-fade-in');
+    };
+
+    // ================= 错题复盘核心逻辑 =================
+    window.currentRevSubject = 'reading'; // 默认打开是阅读
+
+    // 1. 丝滑切换药丸开关 (未选中项黑色文字版)
+    window.switchRevSubject = function(subj) {
+      window.currentRevSubject = subj;
+      const slider = document.getElementById('rev-toggle-slider');
+      const btnR = document.getElementById('btn-rev-read');
+      const btnL = document.getElementById('btn-rev-listen');
+      
+      if (subj === 'reading') {
+        slider.style.transform = 'translateX(0)';
+        // 选中：极浅暖灰；未选中：黑色
+        btnR.className = 'relative z-10 w-[70px] py-1 text-sm font-medium text-[#fcf8f5] transition-colors outline-none focus:outline-none';
+        btnL.className = 'relative z-10 w-[70px] py-1 text-sm font-medium text-[#1a1a1a] hover:text-black transition-colors outline-none focus:outline-none';
+      } else {
+        slider.style.transform = 'translateX(70px)';
+        // 选中：极浅暖灰；未选中：黑色
+        btnL.className = 'relative z-10 w-[70px] py-1 text-sm font-medium text-[#fcf8f5] transition-colors outline-none focus:outline-none';
+        btnR.className = 'relative z-10 w-[70px] py-1 text-sm font-medium text-[#1a1a1a] hover:text-black transition-colors outline-none focus:outline-none';
+      }
+      window.renderReviewList(); 
+    };
+    
+    // 2. 改造顶部的模式切换器 (砖红色高亮)
+    window.switchInputMode = function(mode) {
+      document.getElementById('form-practice').classList.toggle('hidden', mode !== 'practice');
+      document.getElementById('form-full').classList.toggle('hidden', mode !== 'full');
+      document.getElementById('form-review').classList.toggle('hidden', mode !== 'review');
+      
+      document.getElementById('btn-mode-practice').className = `px-6 py-2 rounded-lg text-sm font-medium transition ${mode === 'practice' ? 'bg-[#6B8E23] text-white shadow-md' : 'text-[#808000] hover:bg-[#8FBC8F]/20'}`;
+      document.getElementById('btn-mode-full').className = `px-6 py-2 rounded-lg text-sm font-medium transition ${mode === 'full' ? 'bg-indigo-500 text-white shadow-md' : 'text-indigo-800 hover:bg-indigo-100'}`;
+      document.getElementById('btn-mode-review').className = `px-6 py-2 rounded-lg text-sm font-medium transition ${mode === 'review' ? 'bg-[#b74b48] text-white shadow-md' : 'text-[#312520] hover:bg-[#ebdbcb]/80'}`;
+      
+      if (mode === 'review') {
+         window.renderReviewList();
+         if (typeof lucide !== 'undefined') setTimeout(() => lucide.createIcons(), 50);
+      }
+    };
+
+    // 3. 渲染打勾列表的核心引擎 (护眼配色版)
+    window.renderReviewList = function() {
+      const subj = window.currentRevSubject;
+      
+      const sortRule = (a, b) => {
+         if (a.isRev !== b.isRev) return a.isRev ? 1 : -1; 
+         if (b.errRate !== a.errRate) return b.errRate - a.errRate; 
+         return new Date(a.date) - new Date(b.date); 
+      };
+
+      let pItems = window.practiceData.filter(d => d.subject === subj).map(d => {
+         const errCount = d.total - d.correct;
+         return { 
+           ...d, type: 'practice', origId: d.id, isRev: !!d.isReviewed, 
+           errCount: errCount, errRate: (errCount / d.total) * 100, 
+           title: `${d.sourceDetail} (Part ${d.part})` 
+         };
+      });
+      pItems.sort(sortRule);
+      
+      let fItems = window.fullTestData.map(d => {
+         const isR = subj === 'reading';
+         const errCount = isR ? (40 - d.totalR) : (40 - d.totalL);
+         return {
+           type: 'full', origId: d.id, date: d.date, 
+           isRev: isR ? !!d.isReviewedR : !!d.isReviewedL,
+           errCount: errCount, errRate: (errCount / 40) * 100,
+           title: isNaN(d.cambridgeBook) ? `${d.cambridgeBook} Test ${d.testNum}` : `剑${d.cambridgeBook} Test ${d.testNum}`
+         };
+      });
+      fItems.sort(sortRule);
+
+      const renderHtml = (items, containerId, countId) => {
+         const c = document.getElementById(containerId);
+         c.innerHTML = '';
+         let pending = 0;
+         items.forEach(it => {
+            if(!it.isRev) pending++;
+            // ✨ 这里是核心卡片配色！打勾后变灰变暗，没打勾时是干净的白色
+            const bgClass = it.isRev ? 'bg-[#ebdbcb]/20 border-[#ebdbcb]/50 opacity-60' : 'bg-white border-[#ebdbcb] shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:border-[#b74b48]/40 transition-colors';
+            const textClass = it.isRev ? 'text-[#312520]/40 line-through decoration-[#312520]/30' : 'text-[#312520]';
+            
+            c.innerHTML += `
+              <label class="flex items-center justify-between p-3 rounded-xl border ${bgClass} cursor-pointer group">
+                <div class="flex flex-col">
+                   <span class="text-[13px] font-bold ${textClass}">${it.title}</span>
+                   <span class="text-[10px] ${it.isRev ? 'text-[#312520]/30' : 'text-[#312520]/60'} mt-0.5">${it.date} | 错 ${it.errCount} 题 <span class="opacity-70">(错误率 ${it.errRate.toFixed(0)}%)</span></span>
+                </div>
+                <input type="checkbox" onchange="window.toggleReviewStatus('${it.type}', ${it.origId}, this.checked)" ${it.isRev ? 'checked' : ''} class="w-5 h-5 text-[#b74b48] bg-slate-50 border-[#ebdbcb] rounded focus:ring-[#b74b48] focus:ring-2 cursor-pointer">
+              </label>
+            `;
+         });
+         document.getElementById(countId).innerText = `待复盘: ${pending}`;
+      };
+
+      renderHtml(pItems, 'review-list-practice', 'rev-p-count');
+      renderHtml(fItems, 'review-list-full', 'rev-f-count');
+    };
+
+    // 4. 处理打勾动作，修改底层数据，并重新保存洗牌
+    window.toggleReviewStatus = function(type, origId, isChecked) {
+      if (type === 'practice') {
+         const idx = window.practiceData.findIndex(d => d.id === origId);
+         if(idx > -1) window.practiceData[idx].isReviewed = isChecked;
+         window.saveToLocalStorage('ielts_practiceData', window.practiceData);
+      } else {
+         const idx = window.fullTestData.findIndex(d => d.id === origId);
+         if(idx > -1) {
+            if (window.currentRevSubject === 'reading') window.fullTestData[idx].isReviewedR = isChecked;
+            else window.fullTestData[idx].isReviewedL = isChecked;
+         }
+         window.saveToLocalStorage('ielts_fullTestData', window.fullTestData);
+      }
+      
+      // 打勾瞬间会有个极短的延迟然后再沉底洗牌，体验更好
+      setTimeout(() => {
+         window.renderReviewList();
+         window.updateDashboard(); // 同步更新大看板数据
+      }, 250);
     };
 
     // DOM 准备好后的基础绑定
