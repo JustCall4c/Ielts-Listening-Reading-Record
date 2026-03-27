@@ -1887,14 +1887,14 @@
       // 9. 绘制套题模式 · 平均表现估算 (柱状图)
       // ==========================================
       if (window.fullTestData.length > 0) {
-        let sumScoreR = 0, sumScoreL = 0;
+        let sumTotalR = 0, sumTotalL = 0; // ✨ 1. 改成记录总做对题数
         let maxScoreR = 0, maxScoreL = 0;
         let maxR1=0, maxR2=0, maxR3=0, maxL1=0, maxL2=0, maxL3=0, maxL4=0;
         let sumR1=0, sumR2=0, sumR3=0, sumL1=0, sumL2=0, sumL3=0, sumL4=0;
         
         window.fullTestData.forEach(t => {
-            sumScoreR += parseFloat(t.scoreR);
-            sumScoreL += parseFloat(t.scoreL);
+            sumTotalR += t.totalR; // ✨ 2. 累加每套题做对的题数
+            sumTotalL += t.totalL; 
             if(parseFloat(t.scoreR) > maxScoreR) maxScoreR = parseFloat(t.scoreR);
             if(parseFloat(t.scoreL) > maxScoreL) maxScoreL = parseFloat(t.scoreL);
 
@@ -1912,10 +1912,15 @@
         });
 
         const len = window.fullTestData.length;
-        document.getElementById('stat-full-r-score').innerText = (sumScoreR / len).toFixed(1);
-        document.getElementById('stat-full-r-score-max').innerText = maxScoreR;
-        document.getElementById('stat-full-l-score').innerText = (sumScoreL / len).toFixed(1);
-        document.getElementById('stat-full-l-score-max').innerText = maxScoreL;
+        
+        // ✨ 3. 核心修正：先算平均做对多少题（四舍五入），再转换成雅思标准分！
+        const avgTotalR = Math.round(sumTotalR / len);
+        const avgTotalL = Math.round(sumTotalL / len);
+
+        document.getElementById('stat-full-r-score').innerText = window.getScore(avgTotalR).toFixed(1);
+        document.getElementById('stat-full-r-score-max').innerText = maxScoreR.toFixed(1);
+        document.getElementById('stat-full-l-score').innerText = window.getScore(avgTotalL).toFixed(1);
+        document.getElementById('stat-full-l-score-max').innerText = maxScoreL.toFixed(1);
 
         const calcP = (sum, total) => parseFloat(((sum / total) * 100).toFixed(1));
         const calcMaxP = (maxCorrect, fullScore) => parseFloat(((maxCorrect / fullScore) * 100).toFixed(1));
@@ -2501,7 +2506,7 @@
       }
       window.renderReviewList(); 
     };
-    
+
     // 2. 改造顶部的模式切换器 (砖红色高亮)
     window.switchInputMode = function(mode) {
       document.getElementById('form-practice').classList.toggle('hidden', mode !== 'practice');
