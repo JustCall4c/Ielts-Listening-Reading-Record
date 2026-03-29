@@ -178,9 +178,9 @@
 
   </style>
 </head>
-<body class="min-h-screen bg-[#8FBC8F]/30 font-sans text-slate-800 pb-20 selection:bg-[#9ACD32]/40">
+<body class="min-h-screen bg-[#8FBC8F]/30 font-sans text-slate-800 selection:bg-[#9ACD32]/40">
 
-  <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-10 border-b border-[#8FBC8F]/50">
+  <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-[#8FBC8F]/50">
     <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-2 text-[#808000]">
         <i data-lucide="book-open" class="w-6 h-6"></i>
@@ -205,59 +205,59 @@
         </button>
       </div>
     </div>
-    <!-- 👇 直接整段替换 👇 -->
-<div class="max-w-5xl mx-auto px-4 flex items-center justify-between border-t border-slate-100 h-10">
+    <div class="max-w-5xl mx-auto px-4 flex flex-wrap items-center justify-between border-t border-slate-100 min-h-[40px] py-1 gap-y-2">
   <!-- 左侧：标签按钮 -->
-  <div class="flex space-x-4 h-full items-center">
-    <button id="tab-input" onclick="window.switchTab('input')" class="flex items-center space-x-1 h-full px-2 border-b-2 transition-colors border-[#6B8E23] text-[#6B8E23] font-bold text-base">
-      <i data-lucide="plus-circle" class="w-4 h-4 flex-shrink-0"></i>
-      <span>记录数据</span>
-    </button>
-    <button id="tab-dashboard" onclick="window.switchTab('dashboard')" class="flex items-center space-x-1 h-full px-2 border-b-2 transition-colors border-transparent text-slate-500 hover:text-[#6B8E23] text-base">
-      <i data-lucide="layout-dashboard" class="w-4 h-4 flex-shrink-0"></i>
-      <span>成长看板</span>
-    </button>
-  </div>
+      <div class="flex space-x-4 items-center">
+        <button id="tab-input" onclick="window.switchTab('input')" class="flex items-center space-x-1 py-1.5 px-2 border-b-2 transition-colors border-[#6B8E23] text-[#6B8E23] font-bold text-base">
+          <i data-lucide="plus-circle" class="w-4 h-4 flex-shrink-0"></i>
+          <span>记录数据</span>
+        </button>
+        <button id="tab-dashboard" onclick="window.switchTab('dashboard')" class="flex items-center space-x-1 py-1.5 px-2 border-b-2 transition-colors border-transparent text-slate-500 hover:text-[#6B8E23] text-base">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 flex-shrink-0"></i>
+          <span>成长看板</span>
+        </button>
+      </div>
 
   <!-- 右侧：屠鸭进度条 -->
     <!-- 1. 倒计时 -->
-    <div class="flex items-center justify-end gap-6 h-full w-full max-w-xl">
-    <div class="flex items-baseline space-x-1 flex-shrink-0">
-      <span class="text-xs text-slate-500">距考</span>
-      <span id="countdown-days" class="text-2xl font-bold text-slate-900 tracking-tight min-w-[40px] text-center">-</span>
-      <span class="text-xs text-slate-500">天</span>
-    </div>
+    <div class="flex items-center justify-end gap-3 sm:gap-6 flex-1 min-w-[280px] max-w-xl">
+        <div class="flex items-baseline space-x-1 flex-shrink-0">
+          <span class="text-xs text-slate-500">距考</span>
+          <span id="countdown-days" class="text-2xl font-bold text-slate-900 tracking-tight min-w-[40px] text-center">-</span>
+          <span class="text-xs text-slate-500">天</span>
+        </div>
 
     <!-- 2. 进度条 -->
-    <div class="flex-1 min-w-[120px] max-w-[320px]">
-      <div class="w-full bg-[#8FBC8F]/20 rounded-full h-2.5 overflow-hidden shadow-inner relative">
-        <div id="countdown-bar" class="bg-gradient-to-r from-[#9ACD32] to-[#6B8E23] h-full rounded-full transition-all duration-1000 ease-out w-0 relative">
-          <div class="absolute right-0 top-0 bottom-0 w-3 bg-white/30 animate-pulse rounded-full"></div>
+    <div class="flex-1 min-w-[100px] max-w-[320px]">
+          <div class="w-full bg-[#8FBC8F]/20 rounded-full h-2.5 overflow-hidden shadow-inner relative">
+            <div id="countdown-bar" class="bg-gradient-to-r from-[#9ACD32] to-[#6B8E23] h-full rounded-full transition-all duration-1000 ease-out w-0 relative">
+              <div class="absolute right-0 top-0 bottom-0 w-3 bg-white/30 animate-pulse rounded-full"></div>
+            </div>
+          </div>
+          <div class="flex justify-between items-center mt-0.5">
+            <span id="countdown-percent" class="text-[10px] text-[#6B8E23] font-bold min-w-[30px]">0%</span>
+            <span id="countdown-msg" class="text-[10px] text-slate-400 text-right whitespace-nowrap pl-2 truncate"></span>
+          </div>
         </div>
-      </div>
-      <div class="flex justify-between items-center mt-0.5">
-        <span id="countdown-percent" class="text-[10px] text-[#6B8E23] font-bold min-w-[30px]">0%</span>
-        <span id="countdown-msg" class="text-[10px] text-slate-400 text-right whitespace-nowrap pl-2"></span>
-      </div>
-    </div>
 
     <!-- 3. 【新增】齿轮设置按钮（点击显示/隐藏日期） -->
     <div class="flex items-center gap-2 flex-shrink-0">
-      <button id="toggle-date-btn" onclick="window.toggleDateSettings()" class="p-1 rounded-full hover:bg-[#8FBC8F]/20 text-slate-400 hover:text-[#6B8E23] transition-colors" title="修改考试日期">
-        <i data-lucide="settings" class="w-4 h-4"></i>
-      </button>
-      <div id="date-settings-container" class="flex items-center space-x-2 text-xs text-slate-500">
-        <div class="flex items-center space-x-1">
-          <input type="date" id="start-date" onchange="window.saveDates()" class="date-input p-0.5 w-[85px] text-[10px] border border-[#8FBC8F]/50 rounded-md bg-slate-50 outline-none focus:ring-1 focus:ring-[#8FBC8F]/50 cursor-pointer hover:border-[#6B8E23]" />
-        </div>
-        <span class="text-[10px] text-slate-400">→</span>
-        <div class="flex items-center space-x-1">
-          <input type="date" id="exam-date" onchange="window.saveDates()" class="date-input p-0.5 w-[85px] text-[10px] border border-[#8FBC8F]/50 rounded-md bg-slate-50 outline-none focus:ring-1 focus:ring-[#8FBC8F]/50 cursor-pointer hover:border-[#6B8E23]" />
+          <button id="toggle-date-btn" onclick="window.toggleDateSettings()" class="p-1 rounded-full hover:bg-[#8FBC8F]/20 text-slate-400 hover:text-[#6B8E23] transition-colors" title="修改考试日期">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+          </button>
+          <div id="date-settings-container" class="flex items-center space-x-2 text-xs text-slate-500">
+            <div class="flex items-center space-x-1">
+              <input type="date" id="start-date" onchange="window.saveDates()" class="date-input p-0.5 w-[85px] text-[10px] border border-[#8FBC8F]/50 rounded-md bg-slate-50 outline-none focus:ring-1 focus:ring-[#8FBC8F]/50 cursor-pointer hover:border-[#6B8E23]" />
+            </div>
+            <span class="text-[10px] text-slate-400">→</span>
+            <div class="flex items-center space-x-1">
+              <input type="date" id="exam-date" onchange="window.saveDates()" class="date-input p-0.5 w-[85px] text-[10px] border border-[#8FBC8F]/50 rounded-md bg-slate-50 outline-none focus:ring-1 focus:ring-[#8FBC8F]/50 cursor-pointer hover:border-[#6B8E23]" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-<!-- 👆 替换结束 👆 -->
+
   </header>
 
   <main class="max-w-5xl mx-auto px-4 py-8 relative">
@@ -349,29 +349,29 @@
         </div>
       </div>
 
-      <div id="form-full" class="bg-indigo-50 p-6 rounded-2xl shadow-sm border border-indigo-100 max-w-2xl mx-auto animate-fade-in hidden">
-        <h2 class="text-lg font-semibold mb-6 flex items-center text-indigo-900">
+      <div id="form-full" class="bg-indigo-50 p-4 sm:p-5 rounded-2xl shadow-sm border border-indigo-100 max-w-2xl mx-auto animate-fade-in hidden">
+        <h2 class="text-lg font-semibold mb-3 flex items-center text-indigo-900">
           <i data-lucide="award" class="w-5 h-5 mr-2 text-indigo-500"></i> 全真套题模考记录
         </h2>
         
-        <div class="grid grid-cols-3 gap-4 mb-2">
+        <div class="grid grid-cols-3 gap-3 mb-1">
           <div>
-            <label class="block text-sm text-indigo-700/70 mb-1">做题日期</label>
-            <input type="date" id="f-date" onkeydown="if(event.key === 'Enter') { event.preventDefault(); document.getElementById('f-l1').focus(); }" class="w-full p-2 border border-indigo-200 rounded-lg outline-none bg-white focus:ring-2 focus:ring-indigo-300 text-slate-900 cursor-pointer hover:border-indigo-400 transition-colors" />
+            <label class="block text-xs text-indigo-700/70 mb-1">做题日期</label>
+            <input type="date" id="f-date" onkeydown="if(event.key === 'Enter') { event.preventDefault(); document.getElementById('f-l1').focus(); }" class="w-full py-1.5 px-2 border border-indigo-200 rounded-lg outline-none bg-white focus:ring-2 focus:ring-indigo-300 text-slate-900 cursor-pointer hover:border-indigo-400 transition-colors text-sm" />
           </div>
           <div>
-            <label class="block text-sm text-indigo-700/70 mb-1">试卷版本</label>
+            <label class="block text-xs text-indigo-700/70 mb-1">试卷版本</label>
             <div class="flex space-x-1">
-              <select id="f-book" onchange="window.handleBookChange()" class="w-1/2 p-2 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer hover:border-indigo-400 transition-colors shadow-sm">
+              <select id="f-book" onchange="window.handleBookChange()" class="w-1/2 py-1.5 px-1 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer hover:border-indigo-400 transition-colors shadow-sm text-sm">
                 </select>
-              <select id="f-test" class="w-1/2 p-2 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer hover:border-indigo-400 transition-colors shadow-sm">
+              <select id="f-test" class="w-1/2 py-1.5 px-1 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer hover:border-indigo-400 transition-colors shadow-sm text-sm">
                 <option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option>
               </select>
             </div>
           </div>
           <div>
-              <label class="block text-sm text-indigo-700/70 mb-1">做题时间段</label>
-              <select id="f-status" onchange="window.updateTimeEncouragement()" class="w-full p-2 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer hover:border-indigo-400 transition-colors shadow-sm text-sm">
+              <label class="block text-xs text-indigo-700/70 mb-1">做题时间段</label>
+              <select id="f-status" onchange="window.updateTimeEncouragement()" class="w-full py-1.5 px-1 border border-indigo-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-indigo-300 cursor-pointer hover:border-indigo-400 transition-colors shadow-sm text-[13px]">
                 <option value="09:00-12:00">09:00-12:00🌞黄金同频 </option>
                 <option value="13:00-15:00">13:00-15:00☕午后抗困 </option>
                 <option value="15:00-17:00">15:00-17:00🎯聚精会神 </option>
@@ -380,36 +380,36 @@
           </div>
         </div>
 
-        <div id="time-msg" class="text-[11px] text-indigo-400 mb-4 min-h-[16px] font-medium animate-fade-in tracking-wide text-right">和考场同一时间！克服犯困，提前把大脑生物钟调到最佳状态！</div>
+        <div id="time-msg" class="text-xs text-indigo-500 mb-3 min-h-[18px] font-medium animate-fade-in tracking-wide text-right">和考场同一时间！克服犯困，提前把大脑生物钟调到最佳状态！</div>
 
-       <div class="bg-white/60 p-4 rounded-xl mb-4 border border-indigo-100">
-          <h3 class="text-sm font-medium text-indigo-900 mb-3 flex items-center"><i data-lucide="headphones" class="w-4 h-4 mr-1 text-indigo-400"></i> 听力部分 (共40题)</h3>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div><label class="text-xs text-indigo-500 block mb-1">Part1 (10题)</label><input type="number" id="f-l1" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l2" /></div>
-            <div><label class="text-xs text-indigo-500 block mb-1">Part2 (10题)</label><input type="number" id="f-l2" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l3" /></div>
-            <div><label class="text-xs text-indigo-500 block mb-1">Part3 (10题)</label><input type="number" id="f-l3" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l4" /></div>
-            <div><label class="text-xs text-indigo-500 block mb-1">Part4 (10题)</label><input type="number" id="f-l4" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r1" /></div>
+        <div class="bg-white/60 p-3 rounded-xl mb-3 border border-indigo-100">
+          <h3 class="text-[13px] font-medium text-indigo-900 mb-2 flex items-center"><i data-lucide="headphones" class="w-4 h-4 mr-1 text-indigo-400"></i> 听力部分 (共40题)</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div><label class="text-[11px] text-indigo-500 block mb-0.5">Part1 (10题)</label><input type="number" id="f-l1" class="w-full py-1.5 px-2 text-sm border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l2" /></div>
+            <div><label class="text-[11px] text-indigo-500 block mb-0.5">Part2 (10题)</label><input type="number" id="f-l2" class="w-full py-1.5 px-2 text-sm border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l3" /></div>
+            <div><label class="text-[11px] text-indigo-500 block mb-0.5">Part3 (10题)</label><input type="number" id="f-l3" class="w-full py-1.5 px-2 text-sm border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-l4" /></div>
+            <div><label class="text-[11px] text-indigo-500 block mb-0.5">Part4 (10题)</label><input type="number" id="f-l4" class="w-full py-1.5 px-2 text-sm border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r1" /></div>
           </div>
         </div>
 
-        <div class="bg-white/60 p-4 rounded-xl mb-6 border border-indigo-100">
-          <h3 class="text-sm font-medium text-indigo-900 mb-3 flex items-center"><i data-lucide="book-open" class="w-4 h-4 mr-1 text-indigo-400"></i> 阅读部分 (共40题)</h3>
-          <div class="grid grid-cols-3 gap-4">
-            <div><label class="text-xs text-indigo-500 block mb-1">Part1 (13题)</label><input type="number" id="f-r1" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r2" /></div>
-            <div><label class="text-xs text-indigo-500 block mb-1">Part2 (13题)</label><input type="number" id="f-r2" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r3" /></div>
-            <div><label class="text-xs text-indigo-500 block mb-1">Part3 (14题)</label><input type="number" id="f-r3" class="w-full p-2 border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" /></div>
+        <div class="bg-white/60 p-3 rounded-xl mb-4 border border-indigo-100">
+          <h3 class="text-[13px] font-medium text-indigo-900 mb-2 flex items-center"><i data-lucide="book-open" class="w-4 h-4 mr-1 text-indigo-400"></i> 阅读部分 (共40题)</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <div><label class="text-[11px] text-indigo-500 block mb-0.5">Part1 (13题)</label><input type="number" id="f-r1" class="w-full py-1.5 px-2 text-sm border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r2" /></div>
+            <div><label class="text-[11px] text-indigo-500 block mb-0.5">Part2 (13题)</label><input type="number" id="f-r2" class="w-full py-1.5 px-2 text-sm border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" data-next="f-r3" /></div>
+            <div><label class="text-[11px] text-indigo-500 block mb-0.5">Part3 (14题)</label><input type="number" id="f-r3" class="w-full py-1.5 px-2 text-sm border border-indigo-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-300 outline-none f-enter nav-input" /></div>
           </div>
         </div>
         
-        <button onclick="window.handleFullSubmit()" class="w-full bg-indigo-500 text-white font-medium py-3 rounded-xl hover:bg-indigo-600 transition active:scale-[0.98] shadow-sm tracking-wide">
+        <button onclick="window.handleFullSubmit()" class="w-full bg-indigo-500 text-white font-medium py-2.5 rounded-xl hover:bg-indigo-600 transition active:scale-[0.98] shadow-sm tracking-wide">
           录入套题成绩
         </button>
 
-        <div id="f-history-container" class="mt-6 hidden">
-          <h3 class="text-sm font-medium text-indigo-400 mb-3 flex items-center">
+        <div id="f-history-container" class="mt-4 hidden">
+          <h3 class="text-[13px] font-medium text-indigo-400 mb-2 flex items-center">
             <i data-lucide="history" class="w-4 h-4 mr-1"></i> 最近模考记录
           </h3>
-          <div id="f-history-list" class="space-y-2 max-h-40 overflow-y-auto pr-2">
+          <div id="f-history-list" class="space-y-2 max-h-28 overflow-y-auto pr-2 custom-scrollbar-indigo">
               </div>
           </div>
         </div>
@@ -950,9 +950,8 @@
       document.getElementById('view-input').classList.toggle('hidden-tab', tabId !== 'input');
       document.getElementById('view-dashboard').classList.toggle('hidden-tab', tabId !== 'dashboard');
       
-      // 👇 这里的 text-base 被固定在了公共样式里，不论选中与否都不会变大小啦
-      document.getElementById('tab-input').className = `flex items-center space-x-1 h-full px-2 border-b-2 transition-colors text-base ${tabId === 'input' ? 'border-[#6B8E23] text-[#6B8E23] font-bold' : 'border-transparent text-slate-500 hover:text-[#6B8E23]'}`;
-      document.getElementById('tab-dashboard').className = `flex items-center space-x-1 h-full px-2 border-b-2 transition-colors text-base ${tabId === 'dashboard' ? 'border-[#6B8E23] text-[#6B8E23] font-bold' : 'border-transparent text-slate-500 hover:text-[#6B8E23]'}`;
+      document.getElementById('tab-input').className = `flex items-center space-x-1 py-1.5 px-2 border-b-2 transition-colors text-base ${tabId === 'input' ? 'border-[#6B8E23] text-[#6B8E23] font-bold' : 'border-transparent text-slate-500 hover:text-[#6B8E23]'}`;
+      document.getElementById('tab-dashboard').className = `flex items-center space-x-1 py-1.5 px-2 border-b-2 transition-colors text-base ${tabId === 'dashboard' ? 'border-[#6B8E23] text-[#6B8E23] font-bold' : 'border-transparent text-slate-500 hover:text-[#6B8E23]'}`;
       
       if(tabId === 'dashboard') window.updateDashboard();
     };
@@ -1519,7 +1518,7 @@
           div.innerHTML = `
             <div class="flex flex-col flex-1">
               <span class="text-sm font-medium text-indigo-900">${testTitle} (${d.status})</span>
-              <span class="text-xs text-indigo-400 mt-0.5">${d.date} | 阅: ${d.scoreR}分 (${d.totalR}对) | 听: ${d.scoreL}分 (${d.totalL}对)</span>
+              <span class="text-xs text-indigo-400 mt-0.5">${d.date} | 听: ${d.scoreL}分 (${d.totalL}对) | 阅: ${d.scoreR}分 (${d.totalR}对)</span>
             </div>
             <div class="flex items-center space-x-1">
               <button onclick="window.openEditModal('full', ${d.id})" class="text-slate-400 hover:text-indigo-500 p-1.5 rounded-md hover:bg-indigo-50 transition" title="编辑">
